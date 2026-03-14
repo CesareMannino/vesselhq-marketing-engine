@@ -55,7 +55,12 @@ async function bootstrap() {
     });
   } catch (error) {
     logger.error('Server startup failed', {
-      message: error.message
+      name: error && error.name ? error.name : 'Error',
+      message: error && error.message ? error.message : '',
+      code: error && error.code ? error.code : '',
+      errno: error && error.errno ? error.errno : '',
+      sqlState: error && error.sqlState ? error.sqlState : '',
+      stack: error && error.stack ? error.stack : ''
     });
     process.exit(1);
   }

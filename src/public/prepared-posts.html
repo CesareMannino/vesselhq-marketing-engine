@@ -719,6 +719,10 @@ function renderPlatformChip(platform) {
 }
 
 function renderQueueGroup(group) {
+  const publishNowButton = group.platforms.includes('twitter')
+    ? `<button class="ghost" type="button" data-action="publish-twitter-now" data-import-key="${escapeHtml(group.importKey)}">Publish X now</button>`
+    : '';
+
   return `<article class="queue-item">
     <div class="queue-meta">
       <span class="tag">Order ${group.scheduledOrder}</span>
@@ -729,6 +733,7 @@ function renderQueueGroup(group) {
     <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
     <div class="queue-platforms">
       <button class="edit-sm" type="button" data-action="edit-queue-item" data-import-key="${escapeHtml(group.importKey)}">Edit</button>
+      ${publishNowButton}
     </div>
   </article>`;
 }
@@ -754,6 +759,41 @@ async function loadQueue() {
         const group = groupedQueue.find((item) => item.importKey === button.dataset.importKey);
         if (group) {
           startEditingGroup(group);
+        }
+      });
+    });
+
+    queueListNode.querySelectorAll('[data-action="publish-twitter-now"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const importKey = button.dataset.importKey;
+        button.disabled = true;
+
+        try {
+          setStatus('Publishing X post...', '');
+          const response = await fetch('/prepared-posts/publish-now', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              importKey,
+              platform: 'twitter'
+            })
+          });
+
+          const payload = await response.json();
+
+          if (!response.ok) {
+            throw new Error(payload.message || 'Could not publish X post.');
+          }
+
+          setStatus('X post published successfully.', 'good');
+          showToast('X post published');
+          await loadQueue();
+        } catch (error) {
+          setStatus(error.message, 'bad');
+        } finally {
+          button.disabled = false;
         }
       });
     });

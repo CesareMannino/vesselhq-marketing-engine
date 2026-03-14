@@ -1,6 +1,8 @@
 const path = require('path');
 const preparedPostService = require('../services/preparedPostService');
 const preparedPostImportService = require('../services/preparedPostImportService');
+const publisherService = require('../services/publisherService');
+const analyticsService = require('../services/analyticsService');
 const logger = require('../utils/logger');
 
 async function importPreparedPosts(req, res) {
@@ -90,6 +92,45 @@ async function updatePreparedPostGroup(req, res) {
   }
 }
 
+async function publishPreparedPostNow(req, res) {
+  try {
+    const importKeyBase = String((req.body && req.body.importKey) || '').trim();
+    const platform = String((req.body && req.body.platform) || 'twitter').trim().toLowerCase();
+
+    if (!importKeyBase) {
+      throw new Error('publish-now requires "importKey".');
+    }
+
+    const post = await preparedPostService.getPendingPreparedPostByPlatform(importKeyBase, platform);
+
+    if (!post) {
+      return res.status(404).json({
+        status: 'error',
+        message: `No pending ${platform} post found for this queue item.`
+      });
+    }
+
+    const publishResult = await publisherService.publishPost(post);
+    await analyticsService.trackPostCreation(post);
+    await preparedPostService.markPreparedPostsAsPublished([post.id]);
+
+    res.status(200).json({
+      status: 'ok',
+      message: `${platform} post published`,
+      result: publishResult
+    });
+  } catch (error) {
+    logger.error('Prepared post publish-now failed', {
+      message: error.message
+    });
+
+    res.status(400).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+}
+
 function getPreparedPostUi(req, res) {
   res.sendFile(path.resolve(process.cwd(), 'src', 'public', 'prepared-posts.html'));
 }
@@ -98,6 +139,7 @@ module.exports = {
   getPreparedQueue,
   getPreparedPostUi,
   importPreparedPosts,
+  publishPreparedPostNow,
   updatePreparedPostGroup,
   uploadPreparedPosts
 };

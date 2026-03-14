@@ -159,6 +159,36 @@ async function getPendingPreparedPostGroup(importKeyBase) {
   return rows.map(mapPreparedPostRow);
 }
 
+async function getPendingPreparedPostByPlatform(importKeyBase, platform) {
+  const [rows] = await pool.query(
+    `
+      SELECT
+        id,
+        import_key AS importKey,
+        text,
+        image_url AS imageUrl,
+        platform,
+        scheduled_order AS scheduledOrder,
+        status,
+        campaign_tag AS campaignTag,
+        post_type AS postType,
+        created_at AS createdAt,
+        published_at AS publishedAt
+      FROM marketing_prepared_posts
+      WHERE status = 'pending'
+        AND import_key = ?
+      LIMIT 1
+    `,
+    [`${importKeyBase}:${platform}`]
+  );
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return mapPreparedPostRow(rows[0]);
+}
+
 async function updatePendingPreparedPostGroup(groupData) {
   const connection = await pool.getConnection();
 
@@ -244,6 +274,7 @@ async function updatePendingPreparedPostGroup(groupData) {
 }
 
 module.exports = {
+  getPendingPreparedPostByPlatform,
   getPendingPreparedPostGroup,
   getNextPreparedPostBatch,
   listPendingPreparedPosts,

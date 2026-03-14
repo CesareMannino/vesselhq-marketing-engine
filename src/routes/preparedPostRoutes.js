@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/ui', preparedPostController.getPreparedPostUi);
 router.get('/queue', preparedPostController.getPreparedQueue);
 router.post('/import', preparedPostController.importPreparedPosts);
+router.post('/publish-now', preparedPostController.publishPreparedPostNow);
 router.post('/upload', preparedPostController.uploadPreparedPosts);
 router.put('/group', preparedPostController.updatePreparedPostGroup);
 

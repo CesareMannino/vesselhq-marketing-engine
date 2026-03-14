@@ -6,7 +6,7 @@ const publisherService = require('../services/publisherService');
 const analyticsService = require('../services/analyticsService');
 const preparedPostService = require('../services/preparedPostService');
 const logger = require('../utils/logger');
-const { getDailyCronExpression } = require('../utils/schedulerHelper');
+const { getDailyCronExpression, getCronTimezone } = require('../utils/schedulerHelper');
 
 let marketingTask;
 
@@ -98,12 +98,14 @@ function scheduleMarketingCron() {
   }
 
   const cronExpression = getDailyCronExpression();
+  const cronTimezone = getCronTimezone();
 
   marketingTask = cron.schedule(cronExpression, runMarketingJob, {
-    scheduled: true
+    scheduled: true,
+    timezone: cronTimezone
   });
 
-  logger.info(`Marketing cron scheduled with expression "${cronExpression}"`);
+  logger.info(`Marketing cron scheduled with expression "${cronExpression}" in timezone "${cronTimezone}"`);
 
   return marketingTask;
 }

@@ -158,6 +158,15 @@ The scheduled job in `src/cron/marketingCron.js` runs once per day and:
 9. Publishes to the configured platform publisher
 10. Marks the AI-generated post as `published`
 
+Cron configuration:
+
+```bash
+CRON_SCHEDULE=0 8 * * *
+CRON_TIMEZONE=Europe/Rome
+```
+
+If `CRON_TIMEZONE` is not set, the scheduler defaults to `Europe/Rome`.
+
 ## Notes
 
 - X and Facebook publishing are implemented. LinkedIn is still a placeholder.

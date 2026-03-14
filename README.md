@@ -124,6 +124,25 @@ Setup notes:
 - The access token must belong to the account that will publish the post
 - `image_url` must be publicly reachable so the service can download and upload the image to X
 
+## Facebook Publishing
+
+The `facebook` platform now publishes real posts to a Facebook Page using the Meta Graph API.
+
+Required environment variables:
+
+```bash
+FACEBOOK_PAGE_ID=
+FACEBOOK_PAGE_ACCESS_TOKEN=
+FACEBOOK_GRAPH_API_BASE_URL=https://graph.facebook.com
+FACEBOOK_GRAPH_API_VERSION=v23.0
+```
+
+Setup notes:
+
+- The access token must be a Page access token for the Page that will publish the post
+- The app/user must have Page publishing permissions such as `pages_manage_posts`
+- When `image_url` is present, the publisher posts through the Page photos endpoint using the public image URL
+
 ## Cron Flow
 
 The scheduled job in `src/cron/marketingCron.js` runs once per day and:
@@ -141,7 +160,7 @@ The scheduled job in `src/cron/marketingCron.js` runs once per day and:
 
 ## Notes
 
-- X publishing is implemented. LinkedIn and Facebook are still placeholders.
+- X and Facebook publishing are implemented. LinkedIn is still a placeholder.
 - Set `APP_URL` if the service is not reachable at `http://localhost:3000`; local fallback image URLs are built from that base URL.
 - Prepared evergreen posts now live in `marketing_prepared_posts`.
 - Use `STORAGE_PROVIDER=r2` for production-ready public asset storage on Cloudflare R2.

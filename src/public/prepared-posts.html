@@ -719,9 +719,16 @@ function renderPlatformChip(platform) {
 }
 
 function renderQueueGroup(group) {
-  const publishNowButton = group.platforms.includes('twitter')
-    ? `<button class="ghost" type="button" data-action="publish-twitter-now" data-import-key="${escapeHtml(group.importKey)}">Publish X now</button>`
-    : '';
+  const publishNowButtons = [
+    group.platforms.includes('twitter')
+      ? `<button class="ghost" type="button" data-action="publish-now" data-platform="twitter" data-import-key="${escapeHtml(group.importKey)}">Publish X now</button>`
+      : '',
+    group.platforms.includes('facebook')
+      ? `<button class="ghost" type="button" data-action="publish-now" data-platform="facebook" data-import-key="${escapeHtml(group.importKey)}">Publish Facebook now</button>`
+      : ''
+  ]
+    .filter(Boolean)
+    .join('');
 
   return `<article class="queue-item">
     <div class="queue-meta">
@@ -733,7 +740,7 @@ function renderQueueGroup(group) {
     <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
     <div class="queue-platforms">
       <button class="edit-sm" type="button" data-action="edit-queue-item" data-import-key="${escapeHtml(group.importKey)}">Edit</button>
-      ${publishNowButton}
+      ${publishNowButtons}
     </div>
   </article>`;
 }
@@ -763,13 +770,15 @@ async function loadQueue() {
       });
     });
 
-    queueListNode.querySelectorAll('[data-action="publish-twitter-now"]').forEach((button) => {
+    queueListNode.querySelectorAll('[data-action="publish-now"]').forEach((button) => {
       button.addEventListener('click', async () => {
         const importKey = button.dataset.importKey;
+        const platform = button.dataset.platform;
         button.disabled = true;
 
         try {
-          setStatus('Publishing X post...', '');
+          const label = platform === 'facebook' ? 'Facebook' : 'X';
+          setStatus(`Publishing ${label} post...`, '');
           const response = await fetch('/prepared-posts/publish-now', {
             method: 'POST',
             headers: {
@@ -777,18 +786,18 @@ async function loadQueue() {
             },
             body: JSON.stringify({
               importKey,
-              platform: 'twitter'
+              platform
             })
           });
 
           const payload = await response.json();
 
           if (!response.ok) {
-            throw new Error(payload.message || 'Could not publish X post.');
+            throw new Error(payload.message || `Could not publish ${label} post.`);
           }
 
-          setStatus('X post published successfully.', 'good');
-          showToast('X post published');
+          setStatus(`${label} post published successfully.`, 'good');
+          showToast(`${label} post published`);
           await loadQueue();
         } catch (error) {
           setStatus(error.message, 'bad');

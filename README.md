@@ -10,7 +10,7 @@ Node.js microservice that generates maritime marketing content, simulates AI ima
 - OpenAI-powered LinkedIn-style content generation
 - Prepared evergreen queue with ordered daily batches
 - Configurable asset storage with R2 / Cloudinary / local fallback
-- Modular services, configs, and placeholder publisher integrations
+- Modular services, configs, and social publisher integrations
 
 ## Getting Started
 
@@ -102,6 +102,28 @@ With that configuration:
 - Prepared post images uploaded from the browser are also uploaded to R2
 - `marketing_prepared_posts.image_url` contains public HTTPS asset URLs instead of `localhost` links
 
+## X Publishing
+
+The `twitter` platform now publishes real posts to X using the official write/media APIs.
+
+Required environment variables:
+
+```bash
+X_API_KEY=
+X_API_SECRET=
+X_ACCESS_TOKEN=
+X_ACCESS_TOKEN_SECRET=
+X_USER_ACCESS_TOKEN=
+X_API_BASE_URL=https://api.x.com
+```
+
+Setup notes:
+
+- Use either OAuth 1.0a user credentials (`X_API_KEY` + `X_API_SECRET` + `X_ACCESS_TOKEN` + `X_ACCESS_TOKEN_SECRET`) or a user access token in `X_USER_ACCESS_TOKEN`
+- The X app must have write permissions for the target account
+- The access token must belong to the account that will publish the post
+- `image_url` must be publicly reachable so the service can download and upload the image to X
+
 ## Cron Flow
 
 The scheduled job in `src/cron/marketingCron.js` runs once per day and:
@@ -114,12 +136,12 @@ The scheduled job in `src/cron/marketingCron.js` runs once per day and:
 6. Generates LinkedIn-style maritime content with OpenAI
 7. Builds an image prompt and uploads the generated asset through the configured storage provider
 8. Saves the generated post in MySQL
-9. Invokes the placeholder publisher service
+9. Publishes to the configured platform publisher
 10. Marks the AI-generated post as `published`
 
 ## Notes
 
-- Real social publishing is intentionally not implemented yet.
+- X publishing is implemented. LinkedIn and Facebook are still placeholders.
 - Set `APP_URL` if the service is not reachable at `http://localhost:3000`; local fallback image URLs are built from that base URL.
 - Prepared evergreen posts now live in `marketing_prepared_posts`.
 - Use `STORAGE_PROVIDER=r2` for production-ready public asset storage on Cloudflare R2.

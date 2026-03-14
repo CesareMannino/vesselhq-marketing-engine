@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prepared Posts Uploader</title>
+<style>
+:root {
+  --bg: #f5efe4;
+  --panel: #fffaf2;
+  --panel-strong: #0e3b43;
+  --ink: #172026;
+  --muted: #5a6b70;
+  --line: #d7cab4;
+  --accent: #d17b2d;
+  --accent-dark: #8f4f17;
+  --good: #1f7a4d;
+  --bad: #a83d2c;
+  --warn: #b87a10;
+  --shadow: 0 18px 45px rgba(23,32,38,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(209,123,45,0.18),transparent 28%),linear-gradient(180deg,#f8f2e9 0%,var(--bg) 100%);min-height:100vh}
+main{width:min(1200px,calc(100% - 32px));margin:28px auto 48px}
+.hero{background:var(--panel);border:1px solid rgba(14,59,67,0.08);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.hero-band{padding:10px 22px;background:linear-gradient(135deg,#114651,var(--panel-strong));color:#f8f5ef;letter-spacing:.08em;text-transform:uppercase;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.shortcuts{display:flex;gap:16px;flex-wrap:wrap}
+.kbd{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(248,245,239,0.7);letter-spacing:0}
+kbd{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:10px;color:#f8f5ef}
+.hero-copy{padding:20px 22px;display:grid;gap:8px}
+h1{margin:0;line-height:1.05;font-weight:700;font-size:clamp(24px,4vw,42px);max-width:12ch}
+p{margin:0;color:var(--muted);line-height:1.55;font-size:15px}
+.layout{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.panel{background:var(--panel);border:1px solid rgba(14,59,67,0.08);border-radius:20px;box-shadow:var(--shadow);padding:20px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin-bottom:16px}
+.toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+h2{font-size:20px;font-weight:700;margin:0}
+.hint{font-size:12px;color:var(--muted)}
+.edit-banner{font-size:12px;color:var(--accent-dark);font-weight:700}
+.rows{display:grid;gap:14px}
+.row-card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,0.72);overflow:hidden;transition:box-shadow .15s}
+.row-card:focus-within{box-shadow:0 0 0 2px var(--accent)}
+.row-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:rgba(14,59,67,0.04);border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+.row-title{font-size:15px;font-weight:700;color:var(--panel-strong);display:flex;align-items:center;gap:8px}
+.row-actions{display:flex;gap:6px;align-items:center}
+.row-body{padding:16px;display:grid;gap:12px}
+.row-body.collapsed{display:none}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:grid;gap:4px}
+.field.wide{grid-column:1/-1}
+label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--panel-strong)}
+input[type="text"],input[type="number"],textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;color:var(--ink);background:#fffdf9;font-size:14px;transition:border-color .15s}
+input[type="text"]:focus,input[type="number"]:focus,textarea:focus{outline:none;border-color:var(--accent)}
+textarea{min-height:130px;resize:vertical}
+.char-count{font-size:11px;text-align:right;color:var(--muted);margin-top:2px}
+.char-count.warn{color:var(--warn)}
+.char-count.over{color:var(--bad);font-weight:700}
+.platforms{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}
+.check-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:#fffdf9;font-size:13px;cursor:pointer;transition:border-color .15s}
+.check-pill:hover{border-color:var(--accent)}
+.check-pill input{width:auto;margin:0;cursor:pointer}
+.drop-zone{border:2px dashed var(--line);border-radius:10px;padding:20px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s;position:relative}
+.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(209,123,45,0.05)}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.img-preview{width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:8px;display:block}
+button{border:0;border-radius:999px;padding:9px 16px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:transform 100ms,opacity 100ms,background .15s}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:disabled{opacity:.55;cursor:wait;transform:none}
+.primary{background:var(--accent);color:#fff8ef}
+.secondary{background:#ece1cf;color:var(--panel-strong)}
+.ghost{background:transparent;color:var(--accent-dark);border:1px solid rgba(209,123,45,0.35)}
+.ghost-sm{background:transparent;color:var(--muted);border:1px solid var(--line);padding:5px 10px;font-size:12px}
+.edit-sm{background:transparent;color:var(--panel-strong);border:1px solid rgba(14,59,67,0.22);padding:5px 10px;font-size:12px}
+.danger-sm{background:transparent;color:var(--bad);border:1px solid rgba(168,61,44,0.3);padding:5px 10px;font-size:12px}
+.status-bar{display:flex;align-items:center;gap:10px;margin-top:14px;min-height:28px;font-size:13px;padding:0 4px}
+.status-bar.good{color:var(--good)}
+.status-bar.bad{color:var(--bad)}
+.autosave-dot{width:7px;height:7px;border-radius:50%;background:var(--good);opacity:0;transition:opacity .3s;margin-left:auto;flex-shrink:0}
+.autosave-dot.visible{opacity:1}
+.queue-list{display:grid;gap:10px;margin-top:12px}
+.queue-item{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(255,255,255,0.72)}
+.queue-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--panel-strong)}
+.queue-meta .tag{background:rgba(14,59,67,0.08);border-radius:999px;padding:2px 8px}
+.queue-platforms{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
+.platform-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.03em}
+.platform-chip .icon{width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-family:monospace;background:rgba(255,255,255,0.85)}
+.platform-chip.twitter{background:#e8f4fb;color:#0f5f86;border:1px solid #b9dff1}
+.platform-chip.facebook{background:#edf2ff;color:#2346a0;border:1px solid #c7d4ff}
+.platform-chip.linkedin{background:#e7f4f6;color:#0b6171;border:1px solid #b4dde3}
+.queue-text{font-size:13px;line-height:1.45;color:var(--muted);white-space:pre-wrap}
+.queue-empty{color:var(--muted);font-style:italic;font-size:13px}
+.collapse-icon{font-size:12px;color:var(--muted);font-family:monospace}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--panel-strong);color:#f8f5ef;padding:10px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.hero-copy{padding:16px}.panel{padding:16px}}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="hero-band">
+      Marketing Engine / Prepared Queue
+      <div class="shortcuts">
+        <span class="kbd"><kbd>Ctrl/Cmd+N</kbd> add row</span>
+        <span class="kbd"><kbd>Ctrl/Cmd+Enter</kbd> upload</span>
+        <span class="kbd"><kbd>Ctrl/Cmd+D</kbd> duplicate last</span>
+        <span class="kbd"><kbd>paste</kbd> image from clipboard</span>
+      </div>
+    </div>
+    <div class="hero-copy">
+      <h1>Upload posts from the browser.</h1>
+      <p>Add prepared posts, attach images (drag, click, or <strong>paste from clipboard</strong>), choose platforms and save to the daily queue. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
+    </div>
+  </section>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="toolbar">
+        <div>
+          <h2>New Batch</h2>
+          <p class="hint">Order 1 = day one, 2 = day two...</p>
+          <div id="edit-banner" class="edit-banner" hidden>Editing queued post</div>
+        </div>
+        <div class="toolbar-right">
+          <button id="add-row" class="secondary" type="button">+ Add Row</button>
+          <button id="duplicate-row" class="ghost" type="button">Duplicate Last</button>
+          <button id="cancel-edit" class="ghost" type="button" hidden>Cancel Edit</button>
+          <button id="submit-upload" class="primary" type="button">Upload to Queue</button>
+        </div>
+      </div>
+      <div id="rows" class="rows"></div>
+      <div id="status" class="status-bar">
+        <span id="status-text"></span>
+        <span id="autosave-dot" class="autosave-dot" title="Draft saved"></span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="toolbar">
+        <div>
+          <h2>Pending Queue</h2>
+          <p class="hint">Next pending prepared posts.</p>
+        </div>
+        <button id="refresh-queue" class="ghost" type="button">Refresh</button>
+      </div>
+      <div id="queue-list" class="queue-list">
+        <div class="queue-empty">Loading queue...</div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const rowsContainer = document.getElementById('rows');
+const addRowBtn = document.getElementById('add-row');
+const dupRowBtn = document.getElementById('duplicate-row');
+const cancelEditBtn = document.getElementById('cancel-edit');
+const editBanner = document.getElementById('edit-banner');
+const submitBtn = document.getElementById('submit-upload');
+const refreshBtn = document.getElementById('refresh-queue');
+const statusText = document.getElementById('status-text');
+const statusBar = document.getElementById('status');
+const autosaveDot = document.getElementById('autosave-dot');
+const queueListNode = document.getElementById('queue-list');
+const toastEl = document.getElementById('toast');
+
+const CHAR_LIMITS = { twitter: 280, linkedin: 3000, facebook: 63206 };
+const PLATFORM_META = {
+  twitter: { label: 'Twitter / X', icon: 'X', className: 'twitter' },
+  facebook: { label: 'Facebook', icon: 'f', className: 'facebook' },
+  linkedin: { label: 'LinkedIn', icon: 'in', className: 'linkedin' }
+};
+const PLATFORM_ORDER = ['twitter', 'facebook', 'linkedin'];
+
+let autosaveTimer = null;
+let toastTimer = null;
+let currentEditImportKey = null;
+
+function showToast(msg) {
+  clearTimeout(toastTimer);
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2500);
+}
+
+function setStatus(msg, tone) {
+  statusText.textContent = msg || '';
+  statusBar.className = 'status-bar' + (tone ? ' ' + tone : '');
+}
+
+function flashAutosave() {
+  autosaveDot.classList.add('visible');
+  setTimeout(() => autosaveDot.classList.remove('visible'), 1800);
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function updateRowNumbers() {
+  [...rowsContainer.children].forEach((row, i) => {
+    row.querySelector('[data-role="row-number"]').textContent = String(i + 1);
+  });
+}
+
+function isEditMode() {
+  return Boolean(currentEditImportKey);
+}
+
+function updateFormModeUi() {
+  const editing = isEditMode();
+  submitBtn.textContent = editing ? 'Save Changes' : 'Upload to Queue';
+  cancelEditBtn.hidden = !editing;
+  editBanner.hidden = !editing;
+  addRowBtn.disabled = editing;
+  dupRowBtn.disabled = editing;
+}
+
+function getCheckedPlatforms(card) {
+  return [...card.querySelectorAll('[data-platform]:checked')].map((checkbox) => checkbox.dataset.platform);
+}
+
+function updateCharCount(card) {
+  const text = card.querySelector('[data-field="text"]').value;
+  const len = text.length;
+  const platforms = getCheckedPlatforms(card);
+  const el = card.querySelector('.char-count');
+  let min = Infinity;
+
+  platforms.forEach((platform) => {
+    if (CHAR_LIMITS[platform] && CHAR_LIMITS[platform] < min) {
+      min = CHAR_LIMITS[platform];
+    }
+  });
+
+  if (min === Infinity) {
+    el.textContent = len + ' chars';
+    el.className = 'char-count';
+    return;
+  }
+
+  el.textContent = len + ' / ' + min + ' chars';
+  el.className = 'char-count' + (len > min ? ' over' : len > min * 0.85 ? ' warn' : '');
+}
+
+function handleImageFile(card, file) {
+  if (!file || !file.type.startsWith('image/')) {
+    return;
+  }
+
+  const dz = card.querySelector('.drop-zone');
+  const reader = new FileReader();
+
+  reader.onload = (event) => {
+    card._imageDataUrl = event.target.result;
+    card._imageName = file.name;
+    let preview = card.querySelector('.img-preview');
+
+    if (!preview) {
+      preview = document.createElement('img');
+      preview.className = 'img-preview';
+      dz.appendChild(preview);
+    }
+
+    preview.src = event.target.result;
+    dz.querySelector('.drop-label').textContent = file.name;
+    autosaveDraft();
+  };
+
+  reader.readAsDataURL(file);
+}
+
+function addRow(defaults = {}, collapsed = false) {
+  const card = document.createElement('article');
+  card.className = 'row-card';
+  card._imageDataUrl = null;
+  card._imageName = null;
+  card._existingImageUrl = defaults.imageUrl || null;
+
+  const orderVal = defaults.scheduledOrder || rowsContainer.children.length + 1;
+  const platforms = defaults.platforms || ['twitter', 'facebook', 'linkedin'];
+
+  card.innerHTML = `
+    <div class="row-head" data-action="toggle">
+      <div class="row-title">
+        <span class="collapse-icon">v</span>
+        Post <span data-role="row-number"></span>
+        <span class="hint" style="font-weight:400;margin-left:4px" data-role="row-hint"></span>
+      </div>
+      <div class="row-actions">
+        <button class="ghost-sm" type="button" data-action="duplicate-this">Duplicate</button>
+        <button class="danger-sm" type="button" data-action="remove-row">Remove</button>
+      </div>
+    </div>
+    <div class="row-body${collapsed ? ' collapsed' : ''}">
+      <div class="grid">
+        <div class="field">
+          <label>Scheduled Order</label>
+          <input data-field="scheduledOrder" type="number" min="1" step="1" value="${orderVal}">
+        </div>
+        <div class="field">
+          <label>Import Key</label>
+          <input data-field="importKey" type="text" placeholder="awareness-march-2026-post-01" value="${escapeHtml(defaults.importKey || '')}">
+        </div>
+        <div class="field wide">
+          <label>Post Text</label>
+          <textarea data-field="text" placeholder="Write the post copy here">${escapeHtml(defaults.text || '')}</textarea>
+          <div class="char-count">0 chars</div>
+        </div>
+        <div class="field">
+          <label>Campaign Tag</label>
+          <input data-field="campaignTag" type="text" placeholder="awareness_march2026" value="${escapeHtml(defaults.campaignTag || '')}">
+        </div>
+        <div class="field">
+          <label>Post Type</label>
+          <input data-field="postType" type="text" placeholder="relatable_realistic" value="${escapeHtml(defaults.postType || '')}">
+        </div>
+        <div class="field wide">
+          <label>Image <span style="font-weight:400;text-transform:none;letter-spacing:0">- drag, click, or paste (Ctrl/Cmd+V)</span></label>
+          <div class="drop-zone" tabindex="0">
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-field="imageFile">
+            <span class="drop-label">Drop image here or click to browse</span>
+          </div>
+        </div>
+        <div class="field wide">
+          <label>Platforms</label>
+          <div class="platforms">
+            <label class="check-pill"><input data-platform="twitter" type="checkbox" ${platforms.includes('twitter') ? 'checked' : ''}> Twitter / X</label>
+            <label class="check-pill"><input data-platform="facebook" type="checkbox" ${platforms.includes('facebook') ? 'checked' : ''}> Facebook</label>
+            <label class="check-pill"><input data-platform="linkedin" type="checkbox" ${platforms.includes('linkedin') ? 'checked' : ''}> LinkedIn</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  card.querySelector('.row-actions').addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+
+  card.querySelector('[data-action="toggle"]').addEventListener('click', () => {
+    const body = card.querySelector('.row-body');
+    const icon = card.querySelector('.collapse-icon');
+    const isCollapsed = body.classList.toggle('collapsed');
+    card.classList.toggle('collapsed', isCollapsed);
+    icon.textContent = isCollapsed ? '>' : 'v';
+  });
+
+  card.querySelector('[data-action="remove-row"]').addEventListener('click', () => {
+    card.remove();
+    if (!rowsContainer.children.length) {
+      addRow();
+    }
+    updateRowNumbers();
+    autosaveDraft();
+  });
+
+  card.querySelector('[data-action="duplicate-this"]').addEventListener('click', () => {
+    const data = readCard(card);
+    const newCard = addRow({ ...data });
+    newCard._imageDataUrl = card._imageDataUrl;
+    newCard._imageName = card._imageName;
+
+    if (card._imageDataUrl) {
+      const dz = newCard.querySelector('.drop-zone');
+      const preview = document.createElement('img');
+      preview.className = 'img-preview';
+      preview.src = card._imageDataUrl;
+      dz.appendChild(preview);
+      dz.querySelector('.drop-label').textContent = card._imageName || 'Image copied';
+    }
+    newCard._existingImageUrl = card._existingImageUrl;
+
+    autosaveDraft();
+    showToast('Row duplicated');
+  });
+
+  const dz = card.querySelector('.drop-zone');
+  const fileInput = card.querySelector('[data-field="imageFile"]');
+
+  dz.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dz.classList.add('over');
+  });
+
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+
+  dz.addEventListener('drop', (event) => {
+    event.preventDefault();
+    dz.classList.remove('over');
+    handleImageFile(card, event.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', () => handleImageFile(card, fileInput.files[0]));
+
+  dz.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      fileInput.click();
+    }
+  });
+
+  card.addEventListener('paste', (event) => {
+    const imgItem = [...(event.clipboardData?.items || [])].find((item) => item.type.startsWith('image/'));
+    if (imgItem) {
+      event.preventDefault();
+      handleImageFile(card, imgItem.getAsFile());
+      showToast('Image pasted');
+    }
+  });
+
+  const textarea = card.querySelector('[data-field="text"]');
+  textarea.addEventListener('input', () => {
+    updateCharCount(card);
+    scheduledAutosave();
+  });
+
+  card.querySelectorAll('[data-platform]').forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      updateCharCount(card);
+      scheduledAutosave();
+    });
+  });
+
+  card.querySelectorAll('input[type="text"],input[type="number"]').forEach((input) => {
+    input.addEventListener('input', scheduledAutosave);
+  });
+
+  rowsContainer.appendChild(card);
+  updateRowNumbers();
+  updateCharCount(card);
+  updateRowHints();
+
+  if (card._existingImageUrl) {
+    const dz = card.querySelector('.drop-zone');
+    const preview = document.createElement('img');
+    preview.className = 'img-preview';
+    preview.src = card._existingImageUrl;
+    dz.appendChild(preview);
+    dz.querySelector('.drop-label').textContent = defaults.imageName || 'Current image (choose a file to replace)';
+  }
+
+  return card;
+}
+
+function updateRowHints() {
+  [...rowsContainer.children].forEach((card) => {
+    const text = card.querySelector('[data-field="text"]')?.value || '';
+    const hint = card.querySelector('[data-role="row-hint"]');
+    if (hint) {
+      hint.textContent = text ? '"' + text.slice(0, 38) + (text.length > 38 ? '...' : '') + '"' : '';
+    }
+  });
+}
+
+function readCard(card) {
+  return {
+    text: card.querySelector('[data-field="text"]').value.trim(),
+    scheduledOrder: Number(card.querySelector('[data-field="scheduledOrder"]').value),
+    importKey: card.querySelector('[data-field="importKey"]').value.trim(),
+    campaignTag: card.querySelector('[data-field="campaignTag"]').value.trim(),
+    postType: card.querySelector('[data-field="postType"]').value.trim(),
+    platforms: getCheckedPlatforms(card)
+  };
+}
+
+function scheduledAutosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(autosaveDraft, 800);
+  updateRowHints();
+}
+
+function autosaveDraft() {
+  if (isEditMode()) {
+    setStatus('Editing queued post. Local draft autosave is paused.', '');
+    return;
+  }
+
+  try {
+    const data = [...rowsContainer.querySelectorAll('.row-card')].map((card) => ({
+      ...readCard(card),
+      imageName: card._imageName
+    }));
+    localStorage.setItem('vhq_posts_draft', JSON.stringify(data));
+    flashAutosave();
+    setStatus('Draft saved locally. Images must be re-selected after reload.', '');
+  } catch (error) {
+    setStatus('Could not save local draft.', 'bad');
+  }
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem('vhq_posts_draft');
+    if (!raw) {
+      return false;
+    }
+
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data) || !data.length) {
+      return false;
+    }
+
+    data.forEach((item, index) => {
+      const card = addRow(item, index > 0);
+      if (item.imageName) {
+        const dz = card.querySelector('.drop-zone');
+        dz.querySelector('.drop-label').textContent = item.imageName + ' (re-select after reload)';
+      }
+    });
+
+    showToast('Draft restored (' + data.length + ' row' + (data.length > 1 ? 's' : '') + ')');
+    setStatus('Draft restored. Re-select images before uploading.', '');
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function collectEntries() {
+  const cards = [...rowsContainer.querySelectorAll('.row-card')];
+  const entries = [];
+
+  for (const [index, card] of cards.entries()) {
+    const data = readCard(card);
+    if (!data.text) {
+      throw new Error('Post ' + (index + 1) + ' is missing text.');
+    }
+    if (!Number.isInteger(data.scheduledOrder) || data.scheduledOrder < 1) {
+      throw new Error('Post ' + (index + 1) + ' has invalid order.');
+    }
+    if (!card._imageDataUrl) {
+      throw new Error('Post ' + (index + 1) + ' is missing an image.');
+    }
+    if (!data.platforms.length) {
+      throw new Error('Post ' + (index + 1) + ' needs at least one platform.');
+    }
+
+    entries.push({
+      ...data,
+      imageName: card._imageName,
+      imageDataUrl: card._imageDataUrl
+    });
+  }
+
+  return entries;
+}
+
+function collectEditEntry() {
+  const card = rowsContainer.querySelector('.row-card');
+
+  if (!card) {
+    throw new Error('No queued post is loaded for editing.');
+  }
+
+  const data = readCard(card);
+
+  if (!data.text) {
+    throw new Error('Post is missing text.');
+  }
+
+  if (!Number.isInteger(data.scheduledOrder) || data.scheduledOrder < 1) {
+    throw new Error('Post has invalid order.');
+  }
+
+  if (!data.platforms.length) {
+    throw new Error('Post needs at least one platform.');
+  }
+
+  return {
+    ...data,
+    imageName: card._imageName,
+    imageDataUrl: card._imageDataUrl,
+    existingImageUrl: card._existingImageUrl
+  };
+}
+
+function resetComposerToCreateMode() {
+  currentEditImportKey = null;
+  rowsContainer.innerHTML = '';
+  addRow();
+  updateFormModeUi();
+}
+
+function startEditingGroup(group) {
+  currentEditImportKey = group.importKey;
+  rowsContainer.innerHTML = '';
+
+  const card = addRow({
+    importKey: group.importKey,
+    text: group.text,
+    scheduledOrder: group.scheduledOrder,
+    campaignTag: group.campaignTag || '',
+    postType: group.postType || '',
+    platforms: group.platforms,
+    imageUrl: group.imageUrl,
+    imageName: 'Current image'
+  });
+
+  const body = card.querySelector('.row-body');
+  body.classList.remove('collapsed');
+  card.classList.remove('collapsed');
+  card.querySelector('.collapse-icon').textContent = 'v';
+
+  updateFormModeUi();
+  setStatus('Editing queued post. Choose a new image only if you want to replace the current one.', '');
+  card.querySelector('[data-field="text"]').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function uploadEntries() {
+  try {
+    const editing = isEditMode();
+    setStatus(editing ? 'Saving changes...' : 'Preparing upload...', '');
+    submitBtn.disabled = true;
+    const response = editing
+      ? await fetch('/prepared-posts/group', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...collectEditEntry(),
+          importKey: currentEditImportKey
+        })
+      })
+      : await fetch('/prepared-posts/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entries: await collectEntries() })
+      });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || 'Upload failed.');
+    }
+
+    setStatus(
+      editing
+        ? 'Queued post updated successfully.'
+        : 'Uploaded successfully. Imported: ' + payload.result.importedCount,
+      'good'
+    );
+
+    if (editing) {
+      resetComposerToCreateMode();
+    } else {
+      localStorage.removeItem('vhq_posts_draft');
+      rowsContainer.innerHTML = '';
+      addRow();
+    }
+
+    await loadQueue();
+    showToast(editing ? 'Queue item updated' : 'Upload complete');
+  } catch (error) {
+    setStatus(error.message, 'bad');
+  } finally {
+    submitBtn.disabled = false;
+  }
+}
+
+function getQueueGroupKey(item) {
+  if (item.importKey) {
+    return item.importKey.replace(/:(twitter|facebook|linkedin)$/i, '');
+  }
+
+  return [
+    item.scheduledOrder || '',
+    item.campaignTag || '',
+    item.text || ''
+  ].join('::');
+}
+
+function groupQueueItems(items) {
+  const groups = new Map();
+
+  items.forEach((item) => {
+    const key = getQueueGroupKey(item);
+    if (!groups.has(key)) {
+      groups.set(key, {
+        importKey: key,
+        scheduledOrder: item.scheduledOrder,
+        status: item.status,
+        campaignTag: item.campaignTag,
+        postType: item.postType,
+        text: item.text,
+        imageUrl: item.imageUrl,
+        platforms: []
+      });
+    }
+
+    groups.get(key).platforms.push(item.platform);
+  });
+
+  return [...groups.values()].map((group) => ({
+    ...group,
+    platforms: [...new Set(group.platforms)].sort(
+      (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
+    )
+  }));
+}
+
+function renderPlatformChip(platform) {
+  const meta = PLATFORM_META[platform] || {
+    label: platform,
+    icon: platform.slice(0, 2).toUpperCase(),
+    className: ''
+  };
+
+  return `<span class="platform-chip ${meta.className}">
+    <span class="icon">${escapeHtml(meta.icon)}</span>
+    <span>${escapeHtml(meta.label)}</span>
+  </span>`;
+}
+
+function renderQueueGroup(group) {
+  return `<article class="queue-item">
+    <div class="queue-meta">
+      <span class="tag">Order ${group.scheduledOrder}</span>
+      <span class="tag">${escapeHtml(group.status)}</span>
+      ${group.campaignTag ? '<span class="tag">' + escapeHtml(group.campaignTag) + '</span>' : ''}
+    </div>
+    <div class="queue-platforms">${group.platforms.map(renderPlatformChip).join('')}</div>
+    <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
+    <div class="queue-platforms">
+      <button class="edit-sm" type="button" data-action="edit-queue-item" data-import-key="${escapeHtml(group.importKey)}">Edit</button>
+    </div>
+  </article>`;
+}
+
+async function loadQueue() {
+  queueListNode.innerHTML = '<div class="queue-empty">Loading queue...</div>';
+  try {
+    const response = await fetch('/prepared-posts/queue?limit=12');
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || 'Could not load queue.');
+    }
+
+    const groupedQueue = groupQueueItems(payload.queue);
+
+    queueListNode.innerHTML = groupedQueue.length
+      ? groupedQueue.map(renderQueueGroup).join('')
+      : '<div class="queue-empty">No pending prepared posts.</div>';
+
+    queueListNode.querySelectorAll('[data-action="edit-queue-item"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const group = groupedQueue.find((item) => item.importKey === button.dataset.importKey);
+        if (group) {
+          startEditingGroup(group);
+        }
+      });
+    });
+  } catch (error) {
+    queueListNode.innerHTML = '<div class="queue-empty">' + escapeHtml(error.message) + '</div>';
+  }
+}
+
+document.addEventListener('paste', (event) => {
+  const imgItem = [...(event.clipboardData?.items || [])].find((item) => item.type.startsWith('image/'));
+  if (!imgItem) {
+    return;
+  }
+
+  const lastCard = rowsContainer.lastElementChild;
+  if (!lastCard) {
+    return;
+  }
+
+  event.preventDefault();
+  handleImageFile(lastCard, imgItem.getAsFile());
+  showToast('Image pasted to last row');
+});
+
+document.addEventListener('keydown', (event) => {
+  const mod = event.metaKey || event.ctrlKey;
+
+  if (mod && event.key === 'n') {
+    event.preventDefault();
+    addRow();
+    rowsContainer.lastElementChild?.querySelector('textarea')?.focus();
+  }
+
+  if (mod && event.key === 'Enter') {
+    event.preventDefault();
+    uploadEntries();
+  }
+
+  if (mod && event.key === 'd') {
+    event.preventDefault();
+    const last = rowsContainer.lastElementChild;
+    if (last) {
+      last.querySelector('[data-action="duplicate-this"]').click();
+    }
+  }
+});
+
+addRowBtn.addEventListener('click', () => addRow());
+dupRowBtn.addEventListener('click', () => {
+  const last = rowsContainer.lastElementChild;
+  if (last) {
+    last.querySelector('[data-action="duplicate-this"]').click();
+  } else {
+    addRow();
+  }
+});
+cancelEditBtn.addEventListener('click', () => {
+  resetComposerToCreateMode();
+  setStatus('Edit cancelled.', '');
+});
+submitBtn.addEventListener('click', uploadEntries);
+refreshBtn.addEventListener('click', loadQueue);
+
+if (!loadDraft()) {
+  addRow({ importKey: 'awareness-march-2026-post-01', scheduledOrder: 1, campaignTag: 'awareness_march2026', postType: 'relatable_realistic' });
+}
+updateFormModeUi();
+loadQueue();
+</script>
+</body>
+</html>

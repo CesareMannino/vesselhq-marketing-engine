@@ -1,0 +1,21 @@
+{
+  "name": "vesselhq-marketing-engine",
+  "version": "1.0.0",
+  "description": "Microservice for generating maritime marketing content and assets on a daily schedule.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "import-prepared-posts": "node src/scripts/importPreparedPosts.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1009.0",
+    "axios": "^1.8.4",
+    "cloudinary": "^2.6.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mysql2": "^3.12.0",
+    "node-cron": "^3.0.3",
+    "openai": "^4.87.3"
+  }
+}

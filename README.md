@@ -36,6 +36,16 @@ SOURCE database/seed_topics.sql;
 npm start
 ```
 
+Main entry points:
+
+```bash
+http://localhost:3000/
+http://localhost:3000/dashboard
+http://localhost:3000/queue
+http://localhost:3000/history
+http://localhost:3000/status
+```
+
 ## Prepared Content Workflow
 
 Use this when you want to preload posts and images instead of generating AI content every day.
@@ -66,6 +76,13 @@ You can also trigger the import while the service is running:
 ```bash
 POST /prepared-posts/import
 GET /prepared-posts/queue
+```
+
+To review post history from the database:
+
+```bash
+http://localhost:3000/posts/ui
+GET /posts?source=all&status=published&limit=50
 ```
 
 Example manifest entry:

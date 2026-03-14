@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vessel HQ Marketing Engine</title>
+<style>
+:root {
+  --bg: #f3ede2;
+  --panel: #fffaf1;
+  --panel-strong: #163b45;
+  --ink: #182228;
+  --muted: #5c6d72;
+  --line: #d7ccb8;
+  --accent: #cf762d;
+  --accent-dark: #8f4d18;
+  --good: #1f6d48;
+  --shadow: 0 22px 55px rgba(24,34,40,0.12);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:
+radial-gradient(circle at top left,rgba(207,118,45,0.16),transparent 24%),
+linear-gradient(180deg,#f8f2e8 0%,var(--bg) 100%);min-height:100vh}
+main{width:min(1180px,calc(100% - 32px));margin:28px auto 48px}
+.hero,.panel,.card{background:var(--panel);border:1px solid rgba(22,59,69,0.08);box-shadow:var(--shadow)}
+.hero{border-radius:26px;overflow:hidden;margin-bottom:20px}
+.hero-band{padding:12px 24px;background:linear-gradient(135deg,#214a57,var(--panel-strong));color:#f8f5ee;font-size:11px;letter-spacing:.09em;text-transform:uppercase;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hero-copy{padding:26px 24px;display:grid;gap:12px}
+h1{margin:0;line-height:1.02;font-size:clamp(34px,5vw,58px);max-width:11ch}
+p{margin:0;color:var(--muted);line-height:1.65}
+.layout{display:grid;grid-template-columns:1.8fr 1fr;gap:20px}
+.panel{border-radius:24px;padding:20px}
+.section-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{border-radius:20px;padding:18px;display:grid;gap:12px;min-height:180px}
+.card h2,.card h3{margin:0;line-height:1.1;color:var(--panel-strong)}
+.card h2{font-size:24px}
+.card h3{font-size:20px}
+.card p{font-size:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid transparent}
+.btn.primary{background:var(--accent);color:#fff8ef}
+.btn.secondary{background:#ece2d0;color:var(--panel-strong)}
+.btn.ghost{background:transparent;border-color:rgba(22,59,69,0.18);color:var(--panel-strong)}
+.meta{display:grid;gap:12px}
+.meta-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:14px}
+.meta-row:first-child{border-top:0;padding-top:0}
+.value{color:var(--panel-strong);font-weight:700}
+.status-dot{width:10px;height:10px;border-radius:50%;background:var(--good);display:inline-block;margin-right:8px}
+.quick-links{display:grid;gap:10px}
+.quick-link{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,0.72);border:1px solid var(--line);text-decoration:none;color:inherit}
+.quick-link strong{color:var(--panel-strong)}
+.code{font-family:Consolas,Monaco,monospace;font-size:12px;color:var(--accent-dark)}
+@media (max-width: 900px) {
+  .layout{grid-template-columns:1fr}
+}
+@media (max-width: 720px) {
+  main{width:min(100% - 20px,1180px);margin:18px auto 32px}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="hero-band">
+      <span>Vessel HQ Marketing Engine</span>
+      <span id="health-badge">Checking health...</span>
+    </div>
+    <div class="hero-copy">
+      <h1>Marketing Operations Dashboard</h1>
+      <p>Use one clean entry point for queue management, post history, service health, and operational APIs. The public routes below are intended to be memorable and stable for daily use.</p>
+    </div>
+  </section>
+
+  <section class="layout">
+    <div class="panel">
+      <p class="section-title">Workspaces</p>
+      <div class="grid">
+        <article class="card">
+          <h2>Content Queue</h2>
+          <p>Open the prepared-post workspace to upload assets, edit batches, and publish specific items immediately.</p>
+          <div class="actions">
+            <a class="btn primary" href="/queue">Open Queue</a>
+            <a class="btn ghost" href="/prepared-posts/ui">Technical Route</a>
+          </div>
+        </article>
+        <article class="card">
+          <h2>Post History</h2>
+          <p>Review generated and prepared posts from the database with filters for status and source.</p>
+          <div class="actions">
+            <a class="btn primary" href="/history">Open History</a>
+            <a class="btn ghost" href="/posts/ui">Technical Route</a>
+          </div>
+        </article>
+        <article class="card">
+          <h2>Service Health</h2>
+          <p>Check if the service is alive and confirm the deployment base URL before testing publishers or cron runs.</p>
+          <div class="actions">
+            <a class="btn secondary" href="/status" target="_blank" rel="noreferrer">Open Status JSON</a>
+            <a class="btn ghost" href="/health" target="_blank" rel="noreferrer">Health Endpoint</a>
+          </div>
+        </article>
+        <article class="card">
+          <h2>Operations API</h2>
+          <p>Open raw JSON endpoints directly when you need to inspect queue data or post history without the browser UI.</p>
+          <div class="actions">
+            <a class="btn secondary" href="/posts?source=all&status=published&limit=50" target="_blank" rel="noreferrer">History JSON</a>
+            <a class="btn ghost" href="/prepared-posts/queue?limit=25" target="_blank" rel="noreferrer">Queue JSON</a>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <p class="section-title">Short Routes</p>
+      <div class="quick-links">
+        <a class="quick-link" href="/dashboard">
+          <span>
+            <strong>Dashboard</strong>
+            <div class="code">/dashboard</div>
+          </span>
+          <span>Home</span>
+        </a>
+        <a class="quick-link" href="/queue">
+          <span>
+            <strong>Queue</strong>
+            <div class="code">/queue</div>
+          </span>
+          <span>Prepared posts</span>
+        </a>
+        <a class="quick-link" href="/history">
+          <span>
+            <strong>History</strong>
+            <div class="code">/history</div>
+          </span>
+          <span>Published content</span>
+        </a>
+        <a class="quick-link" href="/status" target="_blank" rel="noreferrer">
+          <span>
+            <strong>Status</strong>
+            <div class="code">/status</div>
+          </span>
+          <span>Health JSON</span>
+        </a>
+      </div>
+
+      <div class="meta" style="margin-top:18px">
+        <div class="meta-row">
+          <span>Root URL</span>
+          <span class="value" id="root-url">-</span>
+        </div>
+        <div class="meta-row">
+          <span>Environment</span>
+          <span class="value" id="env-label">browser</span>
+        </div>
+        <div class="meta-row">
+          <span>Health</span>
+          <span class="value" id="health-label"><span class="status-dot"></span>Checking</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+</main>
+
+<script>
+document.getElementById('root-url').textContent = window.location.origin;
+document.getElementById('env-label').textContent = window.location.hostname === 'localhost' ? 'local' : 'deployed';
+
+async function checkHealth() {
+  const healthBadge = document.getElementById('health-badge');
+  const healthLabel = document.getElementById('health-label');
+
+  try {
+    const response = await fetch('/health');
+    if (!response.ok) {
+      throw new Error('health request failed');
+    }
+
+    const payload = await response.json();
+    const timestamp = payload.timestamp ? new Date(payload.timestamp).toLocaleString() : 'n/a';
+    healthBadge.textContent = 'Service healthy';
+    healthLabel.innerHTML = '<span class="status-dot"></span>OK at ' + timestamp;
+  } catch (error) {
+    healthBadge.textContent = 'Health check failed';
+    healthLabel.textContent = 'Unavailable';
+  }
+}
+
+checkHealth();
+</script>
+</body>
+</html>

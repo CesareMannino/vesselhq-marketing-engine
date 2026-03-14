@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post History</title>
+<style>
+:root {
+  --bg: #f2efe8;
+  --panel: #fffdf8;
+  --panel-strong: #183640;
+  --ink: #1c252b;
+  --muted: #5f6d72;
+  --line: #d7d1c3;
+  --accent: #c96d2d;
+  --accent-soft: rgba(201,109,45,0.12);
+  --good: #256847;
+  --shadow: 0 20px 50px rgba(24,54,64,0.12);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,"Times New Roman",serif;background:
+radial-gradient(circle at top left,rgba(201,109,45,0.15),transparent 24%),
+linear-gradient(180deg,#f7f3ec 0%,var(--bg) 100%);color:var(--ink);min-height:100vh}
+main{width:min(1180px,calc(100% - 32px));margin:28px auto 48px}
+.hero,.panel,.post-card{background:var(--panel);border:1px solid rgba(24,54,64,0.08);box-shadow:var(--shadow)}
+.hero{border-radius:24px;overflow:hidden;margin-bottom:20px}
+.hero-band{padding:11px 22px;background:linear-gradient(135deg,#204552,var(--panel-strong));color:#f8f4eb;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.hero-copy{padding:22px;display:grid;gap:10px}
+h1{margin:0;line-height:1.02;font-size:clamp(30px,4vw,48px);max-width:10ch}
+p{margin:0;color:var(--muted);line-height:1.6}
+.panel{border-radius:22px;padding:18px 18px 20px}
+.toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.field{display:grid;gap:6px}
+label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--panel-strong)}
+select,input{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font:inherit;color:var(--ink)}
+button{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+.primary{background:var(--accent);color:#fffaf5}
+.secondary{background:#e8dfcf;color:var(--panel-strong)}
+.meta-row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:16px 2px 0;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.status{min-height:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-top:18px}
+.post-card{border-radius:20px;overflow:hidden}
+.post-image{width:100%;aspect-ratio:16/9;object-fit:cover;background:#ebe5d8;display:block}
+.post-body{padding:16px;display:grid;gap:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em}
+.chip.source-generated{background:rgba(24,54,64,0.1);color:var(--panel-strong)}
+.chip.source-prepared{background:var(--accent-soft);color:#8d4d19}
+.chip.status-published{background:rgba(37,104,71,0.1);color:var(--good)}
+.chip.status-pending,.chip.status-draft{background:rgba(132,103,45,0.14);color:#7d5d18}
+.chip.status-failed{background:rgba(157,46,36,0.12);color:#8f2f24}
+.post-title{font-size:20px;line-height:1.15;color:var(--panel-strong);margin:0}
+.post-text{font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-wrap}
+.kv{display:grid;gap:6px;font-size:13px;color:var(--muted)}
+.kv strong{color:var(--panel-strong)}
+.empty{padding:28px;border:1px dashed var(--line);border-radius:18px;color:var(--muted);background:rgba(255,255,255,0.55)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+@media (max-width: 720px) {
+  main{width:min(100% - 20px,1180px);margin:18px auto 34px}
+  .toolbar{display:grid;grid-template-columns:1fr 1fr}
+  .toolbar .field.limit{grid-column:1/-1}
+  .toolbar .actions{grid-column:1/-1;display:flex;gap:10px}
+}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="hero-band">Vessel HQ Marketing Engine</div>
+    <div class="hero-copy">
+      <h1>Post History</h1>
+      <p>Review generated and prepared posts from the service database. Filter by source and status, then inspect the latest content and media from one place.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="toolbar">
+      <div class="field">
+        <label for="source">Source</label>
+        <select id="source">
+          <option value="all">All sources</option>
+          <option value="generated">Generated only</option>
+          <option value="prepared">Prepared only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="published">Published</option>
+          <option value="all">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="draft">Draft</option>
+          <option value="failed">Failed</option>
+        </select>
+      </div>
+      <div class="field limit">
+        <label for="limit">Limit</label>
+        <input id="limit" type="number" min="1" max="200" value="50">
+      </div>
+      <div class="actions">
+        <button class="primary" id="refresh" type="button">Refresh</button>
+        <button class="secondary" id="open-json" type="button">Open JSON</button>
+      </div>
+    </div>
+    <div class="meta-row">
+      <div class="status" id="status-text"></div>
+      <div id="count-text"></div>
+    </div>
+    <div class="grid" id="post-grid"></div>
+  </section>
+</main>
+
+<script>
+const sourceInput = document.getElementById('source');
+const statusInput = document.getElementById('status');
+const limitInput = document.getElementById('limit');
+const refreshButton = document.getElementById('refresh');
+const openJsonButton = document.getElementById('open-json');
+const statusText = document.getElementById('status-text');
+const countText = document.getElementById('count-text');
+const postGrid = document.getElementById('post-grid');
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function buildQueryString() {
+  const params = new URLSearchParams({
+    source: sourceInput.value,
+    status: statusInput.value,
+    limit: String(limitInput.value || 50)
+  });
+
+  return params.toString();
+}
+
+function formatDate(value) {
+  if (!value) {
+    return 'n/a';
+  }
+
+  const date = new Date(value);
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(date);
+}
+
+function truncate(text, maxLength = 280) {
+  const value = String(text || '').trim();
+
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength - 1).trimEnd()}...`;
+}
+
+function renderEmptyState(message) {
+  postGrid.innerHTML = `<div class="empty">${escapeHtml(message)}</div>`;
+}
+
+function buildImageMarkup(post) {
+  if (!post.imageUrl) {
+    return '';
+  }
+
+  return `<img class="post-image" src="${escapeHtml(post.imageUrl)}" alt="Post asset">`;
+}
+
+function buildTitle(post) {
+  if (post.source === 'generated' && post.topicTitle) {
+    return escapeHtml(post.topicTitle);
+  }
+
+  if (post.importKey) {
+    return escapeHtml(post.importKey);
+  }
+
+  return `Post #${escapeHtml(post.id)}`;
+}
+
+function buildDetails(post) {
+  const lines = [];
+
+  lines.push(`<div><strong>Platform:</strong> ${escapeHtml(post.platform || 'n/a')}</div>`);
+  lines.push(`<div><strong>Created:</strong> ${escapeHtml(formatDate(post.createdAt))}</div>`);
+
+  if (post.publishedAt) {
+    lines.push(`<div><strong>Published:</strong> ${escapeHtml(formatDate(post.publishedAt))}</div>`);
+  }
+
+  if (post.topicAngle) {
+    lines.push(`<div><strong>Topic angle:</strong> ${escapeHtml(post.topicAngle)}</div>`);
+  }
+
+  if (post.campaignTag) {
+    lines.push(`<div><strong>Campaign:</strong> ${escapeHtml(post.campaignTag)}</div>`);
+  }
+
+  if (post.postType) {
+    lines.push(`<div><strong>Post type:</strong> ${escapeHtml(post.postType)}</div>`);
+  }
+
+  if (post.scheduledOrder) {
+    lines.push(`<div><strong>Scheduled order:</strong> ${escapeHtml(post.scheduledOrder)}</div>`);
+  }
+
+  if (post.imageUrl) {
+    lines.push(`<div><strong>Image:</strong> <a href="${escapeHtml(post.imageUrl)}" target="_blank" rel="noreferrer">open asset</a></div>`);
+  }
+
+  return lines.join('');
+}
+
+function renderPosts(posts) {
+  if (!Array.isArray(posts) || posts.length === 0) {
+    renderEmptyState('No posts matched the current filters.');
+    return;
+  }
+
+  postGrid.innerHTML = posts.map((post) => `
+    <article class="post-card">
+      ${buildImageMarkup(post)}
+      <div class="post-body">
+        <div class="chips">
+          <span class="chip source-${escapeHtml(post.source)}">${escapeHtml(post.source)}</span>
+          <span class="chip status-${escapeHtml(post.status)}">${escapeHtml(post.status)}</span>
+          <span class="chip">${escapeHtml(post.platform || 'n/a')}</span>
+        </div>
+        <h2 class="post-title">${buildTitle(post)}</h2>
+        <div class="post-text">${escapeHtml(truncate(post.content))}</div>
+        <div class="kv">${buildDetails(post)}</div>
+      </div>
+    </article>
+  `).join('');
+}
+
+async function loadPosts() {
+  const queryString = buildQueryString();
+  statusText.textContent = 'Loading posts...';
+
+  try {
+    const response = await fetch(`/posts?${queryString}`);
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || 'Unable to load posts.');
+    }
+
+    renderPosts(payload.posts);
+    statusText.textContent = `Filters: ${payload.filters.source}, ${payload.filters.status}, limit ${payload.filters.limit}`;
+    countText.textContent = `${payload.count} post${payload.count === 1 ? '' : 's'}`;
+  } catch (error) {
+    renderEmptyState(error.message);
+    statusText.textContent = 'Request failed';
+    countText.textContent = '';
+  }
+}
+
+refreshButton.addEventListener('click', loadPosts);
+openJsonButton.addEventListener('click', () => {
+  window.open(`/posts?${buildQueryString()}`, '_blank', 'noopener,noreferrer');
+});
+
+loadPosts();
+</script>
+</body>
+</html>

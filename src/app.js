@@ -13,6 +13,16 @@ const app = express();
 app.use(express.json({ limit: '25mb' }));
 app.use('/prepared-images', express.static(path.resolve(process.cwd(), 'prepared-images')));
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'vesselhq-marketing-engine',
+    message: 'Service is running',
+    health: '/health',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',

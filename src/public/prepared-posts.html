@@ -222,6 +222,9 @@ function updateFormModeUi() {
   editBanner.hidden = !editing;
   addRowBtn.disabled = editing;
   dupRowBtn.disabled = editing;
+  rowsContainer.querySelectorAll('[data-action="remove-row"]').forEach((button) => {
+    button.textContent = editing ? 'Clear Draft' : 'Remove';
+  });
 }
 
 function getCheckedPlatforms(card) {
@@ -355,6 +358,38 @@ function addRow(defaults = {}, collapsed = false) {
   });
 
   card.querySelector('[data-action="remove-row"]').addEventListener('click', () => {
+    if (isEditMode()) {
+      const textField = card.querySelector('[data-field="text"]');
+      const importKeyField = card.querySelector('[data-field="importKey"]');
+      const orderField = card.querySelector('[data-field="scheduledOrder"]');
+      const campaignField = card.querySelector('[data-field="campaignTag"]');
+      const postTypeField = card.querySelector('[data-field="postType"]');
+      const fileInput = card.querySelector('[data-field="imageFile"]');
+      const dropZone = card.querySelector('.drop-zone');
+      const preview = card.querySelector('.img-preview');
+
+      textField.value = '';
+      importKeyField.value = currentEditImportKey || '';
+      orderField.value = '1';
+      campaignField.value = '';
+      postTypeField.value = '';
+      card.querySelectorAll('[data-platform]').forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      fileInput.value = '';
+      card._imageDataUrl = null;
+      card._imageName = null;
+      card._existingImageUrl = null;
+      if (preview) {
+        preview.remove();
+      }
+      dropZone.querySelector('.drop-label').textContent = 'Drop image here or click to browse';
+      updateCharCount(card);
+      updateRowHints();
+      setStatus('Edit draft cleared locally. The queued post was not deleted.', '');
+      return;
+    }
+
     card.remove();
     if (!rowsContainer.children.length) {
       addRow();
@@ -725,6 +760,9 @@ function renderQueueGroup(group) {
       : '',
     group.platforms.includes('facebook')
       ? `<button class="ghost" type="button" data-action="publish-now" data-platform="facebook" data-import-key="${escapeHtml(group.importKey)}">Publish Facebook now</button>`
+      : '',
+    group.platforms.includes('linkedin')
+      ? `<button class="ghost" type="button" data-action="publish-now" data-platform="linkedin" data-import-key="${escapeHtml(group.importKey)}">Publish LinkedIn now</button>`
       : ''
   ]
     .filter(Boolean)
@@ -740,6 +778,7 @@ function renderQueueGroup(group) {
     <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
     <div class="queue-platforms">
       <button class="edit-sm" type="button" data-action="edit-queue-item" data-import-key="${escapeHtml(group.importKey)}">Edit</button>
+      <button class="danger-sm" type="button" data-action="delete-queue-item" data-import-key="${escapeHtml(group.importKey)}">Delete</button>
       ${publishNowButtons}
     </div>
   </article>`;
@@ -770,6 +809,51 @@ async function loadQueue() {
       });
     });
 
+    queueListNode.querySelectorAll('[data-action="delete-queue-item"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const importKey = button.dataset.importKey;
+        const group = groupedQueue.find((item) => item.importKey === importKey);
+        const label = group?.campaignTag || importKey;
+
+        if (!window.confirm(`Delete pending queue item "${label}" for all selected platforms?`)) {
+          return;
+        }
+
+        button.disabled = true;
+
+        try {
+          setStatus('Deleting queued post...', '');
+          const response = await fetch('/prepared-posts/group', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              importKey
+            })
+          });
+
+          const payload = await response.json();
+
+          if (!response.ok) {
+            throw new Error(payload.message || 'Could not delete queued post.');
+          }
+
+          if (currentEditImportKey === importKey) {
+            resetComposerToCreateMode();
+          }
+
+          setStatus('Queued post deleted successfully.', 'good');
+          showToast('Queue item deleted');
+          await loadQueue();
+        } catch (error) {
+          setStatus(error.message, 'bad');
+        } finally {
+          button.disabled = false;
+        }
+      });
+    });
+
     queueListNode.querySelectorAll('[data-action="publish-now"]').forEach((button) => {
       button.addEventListener('click', async () => {
         const importKey = button.dataset.importKey;
@@ -777,7 +861,12 @@ async function loadQueue() {
         button.disabled = true;
 
         try {
-          const label = platform === 'facebook' ? 'Facebook' : 'X';
+          const label =
+            platform === 'facebook'
+              ? 'Facebook'
+              : platform === 'linkedin'
+                ? 'LinkedIn'
+                : 'X';
           setStatus(`Publishing ${label} post...`, '');
           const response = await fetch('/prepared-posts/publish-now', {
             method: 'POST',

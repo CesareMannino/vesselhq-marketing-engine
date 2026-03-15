@@ -273,7 +273,57 @@ async function updatePendingPreparedPostGroup(groupData) {
   return getPendingPreparedPostGroup(groupData.importKeyBase);
 }
 
+async function deletePendingPreparedPostGroup(importKeyBase) {
+  const safeImportKeyBase = String(importKeyBase || '').trim();
+
+  if (!safeImportKeyBase) {
+    throw new Error('Prepared post delete requires "importKey".');
+  }
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [existingRows] = await connection.query(
+      `
+        SELECT id
+        FROM marketing_prepared_posts
+        WHERE status = 'pending'
+          AND import_key IN (?)
+      `,
+      [getSupportedImportKeys(safeImportKeyBase)]
+    );
+
+    if (existingRows.length === 0) {
+      throw new Error('Pending prepared post group not found.');
+    }
+
+    await connection.query(
+      `
+        DELETE FROM marketing_prepared_posts
+        WHERE status = 'pending'
+          AND import_key IN (?)
+      `,
+      [getSupportedImportKeys(safeImportKeyBase)]
+    );
+
+    await connection.commit();
+
+    return {
+      deletedCount: existingRows.length,
+      importKeyBase: safeImportKeyBase
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
 module.exports = {
+  deletePendingPreparedPostGroup,
   getPendingPreparedPostByPlatform,
   getPendingPreparedPostGroup,
   getNextPreparedPostBatch,

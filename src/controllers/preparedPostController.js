@@ -131,11 +131,39 @@ async function publishPreparedPostNow(req, res) {
   }
 }
 
+async function deletePreparedPostGroup(req, res) {
+  try {
+    const importKeyBase = String((req.body && req.body.importKey) || '').trim();
+
+    if (!importKeyBase) {
+      throw new Error('delete requires "importKey".');
+    }
+
+    const result = await preparedPostService.deletePendingPreparedPostGroup(importKeyBase);
+
+    res.status(200).json({
+      status: 'ok',
+      message: 'Prepared post group deleted',
+      result
+    });
+  } catch (error) {
+    logger.error('Prepared post delete failed', {
+      message: error.message
+    });
+
+    res.status(400).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+}
+
 function getPreparedPostUi(req, res) {
   res.sendFile(path.resolve(process.cwd(), 'src', 'public', 'prepared-posts.html'));
 }
 
 module.exports = {
+  deletePreparedPostGroup,
   getPreparedQueue,
   getPreparedPostUi,
   importPreparedPosts,

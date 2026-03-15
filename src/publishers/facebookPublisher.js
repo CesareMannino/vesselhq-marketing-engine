@@ -35,6 +35,30 @@ function buildFormBody(payload) {
   return body;
 }
 
+async function validatePhotoAsset(imageUrl) {
+  const response = await axios.get(imageUrl, {
+    responseType: 'arraybuffer',
+    timeout: 30000,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity
+  });
+
+  const contentType = String(response.headers['content-type'] || '')
+    .split(';')[0]
+    .trim()
+    .toLowerCase();
+
+  if (!contentType.startsWith('image/')) {
+    throw new Error(
+      `Facebook photo publish requires a public image URL. Received content-type "${contentType || 'unknown'}".`
+    );
+  }
+
+  if (contentType === 'image/svg+xml') {
+    throw new Error('Facebook photo publish requires a raster image. SVG assets are not supported; use PNG or JPEG.');
+  }
+}
+
 function parseFacebookError(error) {
   if (error.response && error.response.data && error.response.data.error) {
     const apiError = error.response.data.error;
@@ -49,6 +73,13 @@ function parseFacebookError(error) {
 
     if (normalizedMessage.includes('publish_actions')) {
       return 'Meta rejected the request because `publish_actions` was deprecated. Use a Facebook Page access token with `pages_manage_posts` for Page publishing, or use Meta Sharing products when the goal is user sharing.';
+    }
+
+    if (
+      normalizedMessage.includes('includa un\'immagine utilizzabile in un\'inserzione') ||
+      normalizedMessage.includes('include an image usable in an ad')
+    ) {
+      return `${message} Verify that image_url is public and resolves directly to a raster image such as PNG or JPEG. SVG assets are not supported.`;
     }
 
     if (apiError.code === 200 && normalizedMessage.includes('permission')) {
@@ -94,6 +125,8 @@ async function createFeedPost(post, credentials) {
 }
 
 async function createPhotoPost(post, credentials) {
+  await validatePhotoAsset(post.imageUrl);
+
   const payload = await graphRequest(`/${credentials.pageId}/photos`, {
     url: post.imageUrl,
     caption: post.content,

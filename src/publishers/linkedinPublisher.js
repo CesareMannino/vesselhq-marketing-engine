@@ -70,20 +70,28 @@ function buildLinkedInHeaders(accessToken, headers = {}) {
 
 function extractLinkedInErrorMessage(data, status) {
   const firstError = Array.isArray(data && data.errors) ? data.errors[0] : null;
+  const errorDetails =
+    data && data.errorDetails
+      ? typeof data.errorDetails === 'string'
+        ? data.errorDetails
+        : JSON.stringify(data.errorDetails)
+      : '';
 
   if (firstError) {
-    return (
+    const baseMessage =
       firstError.message ||
       firstError.errorDetails ||
       firstError.errorDetailType ||
-      `LinkedIn API request failed with status ${status}.`
-    );
+      `LinkedIn API request failed with status ${status}.`;
+
+    return errorDetails ? `${baseMessage} Details: ${errorDetails}` : baseMessage;
   }
 
-  return (
+  const baseMessage =
     (data && (data.message || data.error_description || data.description)) ||
-    `LinkedIn API request failed with status ${status}.`
-  );
+    `LinkedIn API request failed with status ${status}.`;
+
+  return errorDetails ? `${baseMessage} Details: ${errorDetails}` : baseMessage;
 }
 
 async function linkedinRequest({ method, path, accessToken, params, body, headers }) {
@@ -203,7 +211,8 @@ function shouldRetryImagePost(error) {
     message.includes('not ready') ||
     message.includes('media') ||
     message.includes('image') ||
-    message.includes('upload')
+    message.includes('upload') ||
+    message.includes('invalid param')
   );
 }
 

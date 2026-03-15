@@ -36,7 +36,7 @@ async function ensurePreparedPostSchema() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         import_key VARCHAR(255) NOT NULL,
         text TEXT NOT NULL,
-        image_url VARCHAR(500) NOT NULL,
+        image_url VARCHAR(500) DEFAULT NULL,
         platform VARCHAR(50) NOT NULL,
         scheduled_order INT NOT NULL,
         status ENUM('pending', 'published', 'failed') NOT NULL DEFAULT 'pending',
@@ -113,6 +113,13 @@ async function ensurePreparedPostSchema() {
       );
     }
   }
+
+  await pool.query(
+    `
+      ALTER TABLE marketing_prepared_posts
+      MODIFY COLUMN image_url VARCHAR(500) DEFAULT NULL
+    `
+  );
 
   if (!(await hasPreparedPostImportKeyIndex())) {
     await pool.query(

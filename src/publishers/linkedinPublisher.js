@@ -39,9 +39,10 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getCredentials() {
-  const accessToken = getEnv('LINKEDIN_ACCESS_TOKEN');
+function getCredentials(overrides = {}) {
+  const accessToken = String(overrides.accessToken || '').trim() || getEnv('LINKEDIN_ACCESS_TOKEN');
   const authorUrn =
+    String(overrides.authorUrn || '').trim() ||
     getEnv('LINKEDIN_AUTHOR_URN') ||
     buildUrn('organization', getEnv('LINKEDIN_ORGANIZATION_ID')) ||
     buildUrn('person', getEnv('LINKEDIN_PERSON_ID', 'LINKEDIN_MEMBER_ID'));
@@ -55,7 +56,7 @@ function getCredentials() {
   return {
     accessToken,
     authorUrn,
-    imageOwnerUrn: getEnv('LINKEDIN_IMAGE_OWNER_URN') || authorUrn
+    imageOwnerUrn: String(overrides.imageOwnerUrn || '').trim() || getEnv('LINKEDIN_IMAGE_OWNER_URN') || authorUrn
   };
 }
 
@@ -317,7 +318,11 @@ async function createLinkedInImagePost(post, credentials, imageUrn) {
 }
 
 async function publish(post) {
-  const credentials = getCredentials();
+  const credentials = getCredentials({
+    accessToken: post.linkedinAccessToken,
+    authorUrn: post.linkedinAuthorUrn,
+    imageOwnerUrn: post.linkedinImageOwnerUrn
+  });
 
   if (!String(post.content || '').trim()) {
     throw new Error('LinkedIn publishing requires post.content.');

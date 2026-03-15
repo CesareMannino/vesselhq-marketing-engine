@@ -10,6 +10,7 @@ Node.js microservice that generates maritime marketing content, simulates AI ima
 - OpenAI-powered LinkedIn-style content generation
 - Real publishing support for LinkedIn, X, and Facebook
 - Prepared evergreen queue with ordered daily batches
+- Automatic fallback image URL generation for prepared posts without an uploaded image
 - Configurable asset storage with R2 / Cloudinary / local fallback
 - Modular services, configs, and social publisher integrations
 
@@ -103,6 +104,19 @@ Example manifest entry:
 ```
 
 The importer creates one row per platform in `marketing_prepared_posts`. All pending rows with the same `scheduledOrder` are published in the same daily run.
+If `imageFile` is omitted, the service automatically builds an `image_url` from the post text using `PREPARED_POST_IMAGE_API_BASE_URL`.
+
+To backfill existing prepared posts that have a missing image URL:
+
+```bash
+npm run fill-prepared-post-images
+```
+
+You can also call the HTTP endpoint:
+
+```bash
+POST /prepared-posts/fill-images
+```
 
 ## Online Deployment
 

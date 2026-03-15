@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const preparedPostService = require('./preparedPostService');
 const { uploadPreparedImage } = require('./imageService');
 const socialConfig = require('../config/social');
+const { buildPreparedPostImageUrl } = require('./preparedPostImageService');
 
 const preparedPostsDir = path.resolve(process.cwd(), 'prepared-posts');
 const preparedImagesDir = path.resolve(process.cwd(), 'prepared-images');
@@ -123,20 +124,23 @@ async function importPreparedPostsFromManifest(options = {}) {
       throw new Error(`Manifest entry ${index + 1} is missing "text".`);
     }
 
-    if (!imageFile) {
-      throw new Error(`Manifest entry ${index + 1} is missing "imageFile".`);
-    }
-
     if (!Number.isInteger(scheduledOrder) || scheduledOrder < 1) {
       throw new Error(`Manifest entry ${index + 1} has an invalid "scheduledOrder".`);
     }
 
-    const imagePath = resolvePreparedImagePath(imageFile);
-    await fs.access(imagePath);
-    const imageAsset = await uploadPreparedImage({
-      fileName: imageFile,
-      filePath: imagePath
-    });
+    let imageUrl = '';
+
+    if (imageFile) {
+      const imagePath = resolvePreparedImagePath(imageFile);
+      await fs.access(imagePath);
+      const imageAsset = await uploadPreparedImage({
+        fileName: imageFile,
+        filePath: imagePath
+      });
+      imageUrl = imageAsset.secureUrl;
+    } else {
+      imageUrl = buildPreparedPostImageUrl(text);
+    }
 
     const platforms = normalizePlatforms(entry);
 
@@ -148,7 +152,7 @@ async function importPreparedPostsFromManifest(options = {}) {
       await preparedPostService.upsertPreparedPost({
         importKey: buildImportKey(entry, platform, imageFile),
         text,
-        imageUrl: imageAsset.secureUrl,
+        imageUrl,
         platform,
         scheduledOrder,
         status: entry.status || 'pending',
@@ -181,15 +185,10 @@ async function createPreparedPostsFromBrowser(entries) {
     }
 
     const text = String(entry.text || '').trim();
-    const imageName = String(entry.imageName || '').trim();
     const scheduledOrder = Number(entry.scheduledOrder);
 
     if (!text) {
       throw new Error(`Upload entry ${index + 1} is missing "text".`);
-    }
-
-    if (!imageName) {
-      throw new Error(`Upload entry ${index + 1} is missing "imageName".`);
     }
 
     if (!Number.isInteger(scheduledOrder) || scheduledOrder < 1) {
@@ -197,14 +196,27 @@ async function createPreparedPostsFromBrowser(entries) {
     }
 
     const platforms = normalizePlatforms(entry);
-    const { mimeType, buffer } = parseImageDataUrl(entry.imageDataUrl);
-    const extension = getImageExtension(imageName, mimeType);
-    const fileBaseName = sanitizeFileSegment(entry.importKey || path.parse(imageName).name);
-    const fileName = `${scheduledOrder}-${fileBaseName}-${crypto.randomBytes(4).toString('hex')}${extension}`;
-    const imageAsset = await uploadPreparedImage({
-      fileName,
-      buffer
-    });
+    const imageName = String(entry.imageName || '').trim();
+    const fileBaseName = sanitizeFileSegment(entry.importKey || path.parse(imageName || 'prepared-post').name);
+    let imageUrl = '';
+
+    if (entry.imageDataUrl) {
+      if (!imageName) {
+        throw new Error(`Upload entry ${index + 1} is missing "imageName".`);
+      }
+
+      const { mimeType, buffer } = parseImageDataUrl(entry.imageDataUrl);
+      const extension = getImageExtension(imageName, mimeType);
+      const fileName = `${scheduledOrder}-${fileBaseName}-${crypto.randomBytes(4).toString('hex')}${extension}`;
+      const imageAsset = await uploadPreparedImage({
+        fileName,
+        buffer
+      });
+
+      imageUrl = imageAsset.secureUrl;
+    } else {
+      imageUrl = buildPreparedPostImageUrl(text);
+    }
 
     for (const platform of platforms) {
       if (!socialConfig.supportedPlatforms.includes(platform)) {
@@ -218,10 +230,10 @@ async function createPreparedPostsFromBrowser(entries) {
             scheduledOrder
           },
           platform,
-          fileName
+          imageName || fileBaseName
         ),
         text,
-        imageUrl: imageAsset.secureUrl,
+        imageUrl,
         platform,
         scheduledOrder,
         status: entry.status || 'pending',
@@ -261,7 +273,6 @@ async function updatePreparedPostGroupFromBrowser(entry) {
 
   const platforms = normalizePlatforms(entry);
   const existingImageUrl = String(entry.existingImageUrl || '').trim();
-
   let imageUrl = existingImageUrl;
 
   if (entry.imageDataUrl) {
@@ -284,7 +295,7 @@ async function updatePreparedPostGroupFromBrowser(entry) {
   }
 
   if (!imageUrl) {
-    throw new Error('Prepared post update requires an existing image or a replacement image.');
+    imageUrl = buildPreparedPostImageUrl(text);
   }
 
   return preparedPostService.updatePendingPreparedPostGroup({

@@ -1,12 +1,16 @@
 const { pool } = require('../config/db');
 const PreparedMarketingPost = require('../models/PreparedMarketingPost');
+const { resolvePreparedPostImageUrl, fillMissingPreparedPostImages } = require('./preparedPostImageService');
 
 function mapPreparedPostRow(row) {
   return new PreparedMarketingPost({
     id: row.id,
     importKey: row.importKey,
     text: row.text,
-    imageUrl: row.imageUrl,
+    imageUrl: resolvePreparedPostImageUrl({
+      text: row.text,
+      imageUrl: row.imageUrl
+    }),
     platform: row.platform,
     scheduledOrder: row.scheduledOrder,
     status: row.status,
@@ -22,6 +26,8 @@ function getSupportedImportKeys(importKeyBase) {
 }
 
 async function getNextPreparedPostBatch() {
+  await fillMissingPreparedPostImages();
+
   const [batchRows] = await pool.query(
     `
       SELECT
@@ -51,6 +57,8 @@ async function getNextPreparedPostBatch() {
 }
 
 async function upsertPreparedPost(postData) {
+  const imageUrl = resolvePreparedPostImageUrl(postData);
+
   await pool.query(
     `
       INSERT INTO marketing_prepared_posts (
@@ -80,7 +88,7 @@ async function upsertPreparedPost(postData) {
     [
       postData.importKey,
       postData.text,
-      postData.imageUrl,
+      imageUrl,
       postData.platform,
       postData.scheduledOrder,
       postData.status || 'pending',
@@ -107,6 +115,8 @@ async function markPreparedPostsAsPublished(postIds) {
 }
 
 async function listPendingPreparedPosts(limit = 100) {
+  await fillMissingPreparedPostImages();
+
   const safeLimit = Math.max(1, Math.min(Number(limit) || 100, 500));
   const [rows] = await pool.query(
     `
@@ -134,6 +144,8 @@ async function listPendingPreparedPosts(limit = 100) {
 }
 
 async function getPendingPreparedPostGroup(importKeyBase) {
+  await fillMissingPreparedPostImages();
+
   const [rows] = await pool.query(
     `
       SELECT
@@ -160,6 +172,8 @@ async function getPendingPreparedPostGroup(importKeyBase) {
 }
 
 async function getPendingPreparedPostByPlatform(importKeyBase, platform) {
+  await fillMissingPreparedPostImages();
+
   const [rows] = await pool.query(
     `
       SELECT
@@ -324,6 +338,7 @@ async function deletePendingPreparedPostGroup(importKeyBase) {
 
 module.exports = {
   deletePendingPreparedPostGroup,
+  fillMissingPreparedPostImages,
   getPendingPreparedPostByPlatform,
   getPendingPreparedPostGroup,
   getNextPreparedPostBatch,

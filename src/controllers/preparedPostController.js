@@ -48,6 +48,27 @@ async function getPreparedQueue(req, res) {
   }
 }
 
+async function fillPreparedPostImages(req, res) {
+  try {
+    const result = await preparedPostService.fillMissingPreparedPostImages(req.body && req.body.limit);
+
+    res.status(200).json({
+      status: 'ok',
+      message: 'Prepared post images filled',
+      result
+    });
+  } catch (error) {
+    logger.error('Prepared post image fill failed', {
+      message: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+}
+
 async function uploadPreparedPosts(req, res) {
   try {
     const result = await preparedPostImportService.createPreparedPostsFromBrowser(
@@ -164,6 +185,7 @@ function getPreparedPostUi(req, res) {
 
 module.exports = {
   deletePreparedPostGroup,
+  fillPreparedPostImages,
   getPreparedQueue,
   getPreparedPostUi,
   importPreparedPosts,

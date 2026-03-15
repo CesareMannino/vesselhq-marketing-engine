@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const preparedPostService = require('./preparedPostService');
 const { uploadPreparedImage } = require('./imageService');
 const socialConfig = require('../config/social');
-const { buildPreparedPostImageUrl } = require('./preparedPostImageService');
+const { buildPreparedPostImageUrl, isPreparedPostPromptImageUrl } = require('./preparedPostImageService');
 
 const preparedPostsDir = path.resolve(process.cwd(), 'prepared-posts');
 const preparedImagesDir = path.resolve(process.cwd(), 'prepared-images');
@@ -92,6 +92,20 @@ function normalizePlatforms(entry) {
   return sourcePlatforms.map((platform) => String(platform).toLowerCase());
 }
 
+function ensureFacebookHasManagedImage(platforms, imageUrl, contextLabel) {
+  if (!platforms.includes('facebook')) {
+    return;
+  }
+
+  const normalizedImageUrl = String(imageUrl || '').trim();
+
+  if (!normalizedImageUrl || isPreparedPostPromptImageUrl(normalizedImageUrl)) {
+    throw new Error(
+      `${contextLabel} targets Facebook and requires an uploaded public raster image such as PNG or JPEG. Do not rely on PREPARED_POST_IMAGE_API_BASE_URL fallback images for Facebook posts.`
+    );
+  }
+}
+
 async function readManifest(manifestPath = defaultManifestPath) {
   const rawManifest = await fs.readFile(manifestPath, 'utf8');
   const parsedManifest = JSON.parse(rawManifest);
@@ -143,6 +157,7 @@ async function importPreparedPostsFromManifest(options = {}) {
     }
 
     const platforms = normalizePlatforms(entry);
+    ensureFacebookHasManagedImage(platforms, imageUrl, `Manifest entry ${index + 1}`);
 
     for (const platform of platforms) {
       if (!socialConfig.supportedPlatforms.includes(platform)) {
@@ -217,6 +232,8 @@ async function createPreparedPostsFromBrowser(entries) {
     } else {
       imageUrl = buildPreparedPostImageUrl(text);
     }
+
+    ensureFacebookHasManagedImage(platforms, imageUrl, `Upload entry ${index + 1}`);
 
     for (const platform of platforms) {
       if (!socialConfig.supportedPlatforms.includes(platform)) {
@@ -297,6 +314,8 @@ async function updatePreparedPostGroupFromBrowser(entry) {
   if (!imageUrl) {
     imageUrl = buildPreparedPostImageUrl(text);
   }
+
+  ensureFacebookHasManagedImage(platforms, imageUrl, 'Prepared post update');
 
   return preparedPostService.updatePendingPreparedPostGroup({
     importKeyBase,

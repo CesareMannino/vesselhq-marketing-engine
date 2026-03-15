@@ -9,7 +9,8 @@ function mapPreparedPostRow(row) {
     text: row.text,
     imageUrl: resolvePreparedPostImageUrl({
       text: row.text,
-      imageUrl: row.imageUrl
+      imageUrl: row.imageUrl,
+      platform: row.platform
     }),
     platform: row.platform,
     scheduledOrder: row.scheduledOrder,

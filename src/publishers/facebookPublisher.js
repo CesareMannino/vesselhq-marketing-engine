@@ -4,6 +4,9 @@ const FACEBOOK_GRAPH_API_BASE_URL = String(
   process.env.FACEBOOK_GRAPH_API_BASE_URL || 'https://graph.facebook.com'
 ).replace(/\/$/, '');
 const FACEBOOK_GRAPH_API_VERSION = String(process.env.FACEBOOK_GRAPH_API_VERSION || 'v23.0').trim();
+const PREPARED_POST_IMAGE_API_BASE_URL = String(
+  process.env.PREPARED_POST_IMAGE_API_BASE_URL || 'https://image.pollinations.ai/prompt'
+).replace(/\/$/, '');
 
 function getCredentials() {
   const pageId = String(process.env.FACEBOOK_PAGE_ID || '').trim();
@@ -44,7 +47,23 @@ function getAssetLabel(imageUrl) {
   }
 }
 
+function isPreparedPostPromptImageUrl(imageUrl) {
+  const normalizedImageUrl = String(imageUrl || '').trim();
+
+  if (!normalizedImageUrl) {
+    return false;
+  }
+
+  return normalizedImageUrl === PREPARED_POST_IMAGE_API_BASE_URL || normalizedImageUrl.startsWith(`${PREPARED_POST_IMAGE_API_BASE_URL}/`);
+}
+
 async function validatePhotoAsset(imageUrl) {
+  if (isPreparedPostPromptImageUrl(imageUrl)) {
+    throw new Error(
+      'Facebook photo publish requires a managed public raster image. PREPARED_POST_IMAGE_API_BASE_URL fallback images are not supported for Facebook posts; upload a PNG or JPEG instead.'
+    );
+  }
+
   try {
     const response = await axios.get(imageUrl, {
       responseType: 'arraybuffer',

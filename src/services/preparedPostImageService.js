@@ -26,11 +26,25 @@ function buildPreparedPostImageUrl(text) {
   return `${PREPARED_POST_IMAGE_API_BASE_URL}/${prompt}`;
 }
 
+function isPreparedPostPromptImageUrl(imageUrl) {
+  const normalizedImageUrl = String(imageUrl || '').trim();
+
+  if (!normalizedImageUrl) {
+    return false;
+  }
+
+  return normalizedImageUrl === PREPARED_POST_IMAGE_API_BASE_URL || normalizedImageUrl.startsWith(`${PREPARED_POST_IMAGE_API_BASE_URL}/`);
+}
+
 function resolvePreparedPostImageUrl(postData) {
   const existingImageUrl = String(postData && postData.imageUrl ? postData.imageUrl : '').trim();
 
   if (existingImageUrl) {
     return existingImageUrl;
+  }
+
+  if (String(postData && postData.platform ? postData.platform : '').trim().toLowerCase() === 'facebook') {
+    return '';
   }
 
   return buildPreparedPostImageUrl(postData && postData.text);
@@ -42,8 +56,9 @@ async function fillMissingPreparedPostImages(limit = 500) {
     `
       SELECT id, text
       FROM marketing_prepared_posts
-      WHERE image_url IS NULL
-         OR TRIM(image_url) = ''
+      WHERE (image_url IS NULL
+         OR TRIM(image_url) = '')
+        AND platform <> 'facebook'
       ORDER BY id ASC
       LIMIT ?
     `,
@@ -76,5 +91,6 @@ async function fillMissingPreparedPostImages(limit = 500) {
 module.exports = {
   buildPreparedPostImageUrl,
   fillMissingPreparedPostImages,
+  isPreparedPostPromptImageUrl,
   resolvePreparedPostImageUrl
 };

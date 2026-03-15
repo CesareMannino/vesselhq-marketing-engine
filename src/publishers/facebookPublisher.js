@@ -35,27 +35,55 @@ function buildFormBody(payload) {
   return body;
 }
 
-async function validatePhotoAsset(imageUrl) {
-  const response = await axios.get(imageUrl, {
-    responseType: 'arraybuffer',
-    timeout: 30000,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity
-  });
-
-  const contentType = String(response.headers['content-type'] || '')
-    .split(';')[0]
-    .trim()
-    .toLowerCase();
-
-  if (!contentType.startsWith('image/')) {
-    throw new Error(
-      `Facebook photo publish requires a public image URL. Received content-type "${contentType || 'unknown'}".`
-    );
+function getAssetLabel(imageUrl) {
+  try {
+    const parsedUrl = new URL(String(imageUrl || '').trim());
+    return `${parsedUrl.origin}${parsedUrl.pathname}`;
+  } catch (error) {
+    return String(imageUrl || '').trim() || 'unknown image URL';
   }
+}
 
-  if (contentType === 'image/svg+xml') {
-    throw new Error('Facebook photo publish requires a raster image. SVG assets are not supported; use PNG or JPEG.');
+async function validatePhotoAsset(imageUrl) {
+  try {
+    const response = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+      timeout: 30000,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity
+    });
+
+    const contentType = String(response.headers['content-type'] || '')
+      .split(';')[0]
+      .trim()
+      .toLowerCase();
+
+    if (!contentType.startsWith('image/')) {
+      throw new Error(
+        `Facebook photo publish requires a public image URL. Received content-type "${contentType || 'unknown'}".`
+      );
+    }
+
+    if (contentType === 'image/svg+xml') {
+      throw new Error('Facebook photo publish requires a raster image. SVG assets are not supported; use PNG or JPEG.');
+    }
+  } catch (error) {
+    if (error.response) {
+      const contentType = String(error.response.headers['content-type'] || '')
+        .split(';')[0]
+        .trim()
+        .toLowerCase();
+
+      throw new Error(
+        `Unable to fetch the Facebook image asset from ${getAssetLabel(imageUrl)}. Remote server responded with status ${error.response.status}${contentType ? ` and content-type "${contentType}"` : ''}.`
+      );
+    }
+
+    if (error.request) {
+      throw new Error(`Unable to fetch the Facebook image asset from ${getAssetLabel(imageUrl)}. No response was returned.`);
+    }
+
+    throw error;
   }
 }
 

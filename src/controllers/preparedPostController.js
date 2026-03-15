@@ -142,6 +142,8 @@ async function publishPreparedPostNow(req, res) {
     });
   } catch (error) {
     logger.error('Prepared post publish-now failed', {
+      importKey: req.body && req.body.importKey ? String(req.body.importKey) : '',
+      platform: req.body && req.body.platform ? String(req.body.platform) : '',
       message: error.message
     });
 

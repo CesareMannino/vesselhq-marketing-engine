@@ -110,7 +110,7 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
     </div>
     <div class="hero-copy">
       <h1>Upload posts from the browser.</h1>
-      <p>Add prepared posts, attach images (drag, click, or <strong>paste from clipboard</strong>), choose platforms and save to the daily queue. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
+      <p>Add prepared posts, attach an image for each one (drag, click, or <strong>paste from clipboard</strong>), choose platforms and save to the daily queue. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
     </div>
   </section>
 
@@ -327,7 +327,7 @@ function addRow(defaults = {}, collapsed = false) {
           <input data-field="postType" type="text" placeholder="relatable_realistic" value="${escapeHtml(defaults.postType || '')}">
         </div>
         <div class="field wide">
-          <label>Image <span style="font-weight:400;text-transform:none;letter-spacing:0">- drag, click, or paste (Ctrl/Cmd+V)</span></label>
+          <label>Image Required <span style="font-weight:400;text-transform:none;letter-spacing:0">- drag, click, or paste (Ctrl/Cmd+V)</span></label>
           <div class="drop-zone" tabindex="0">
             <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-field="imageFile">
             <span class="drop-label">Drop image here or click to browse</span>
@@ -609,6 +609,10 @@ function collectEditEntry() {
     throw new Error('Post needs at least one platform.');
   }
 
+  if (!card._imageDataUrl && !card._existingImageUrl) {
+    throw new Error('Post is missing an image.');
+  }
+
   return {
     ...data,
     imageName: card._imageName,
@@ -645,7 +649,7 @@ function startEditingGroup(group) {
   card.querySelector('.collapse-icon').textContent = 'v';
 
   updateFormModeUi();
-  setStatus('Editing queued post. Choose a new image only if you want to replace the current one.', '');
+  setStatus('Editing queued post. An uploaded image is required; keep the current one or choose a new file to replace it.', '');
   card.querySelector('[data-field="text"]').focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

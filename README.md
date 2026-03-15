@@ -10,7 +10,7 @@ Node.js microservice that generates maritime marketing content, simulates AI ima
 - OpenAI-powered LinkedIn-style content generation
 - Real publishing support for LinkedIn, X, and Facebook
 - Prepared evergreen queue with ordered daily batches
-- Automatic fallback image URL generation for prepared posts without an uploaded image
+- Manual image upload flow for prepared posts with no automatic image generation
 - Configurable asset storage with R2 / Cloudinary / local fallback
 - Modular services, configs, and social publisher integrations
 
@@ -62,6 +62,7 @@ http://localhost:3000/prepared-posts/ui
 
 From there you can paste the text, attach the image, choose the platforms, and upload directly from the browser.
 When `STORAGE_PROVIDER=r2`, uploaded prepared images are pushed to Cloudflare R2 and stored with public HTTPS URLs, which is the recommended online setup.
+Every prepared post requires a real uploaded image asset.
 
 ### File-Based Import
 
@@ -104,19 +105,7 @@ Example manifest entry:
 ```
 
 The importer creates one row per platform in `marketing_prepared_posts`. All pending rows with the same `scheduledOrder` are published in the same daily run.
-If `imageFile` is omitted, the service automatically builds an `image_url` from the post text using `PREPARED_POST_IMAGE_API_BASE_URL`.
-
-To backfill existing prepared posts that have a missing image URL:
-
-```bash
-npm run fill-prepared-post-images
-```
-
-You can also call the HTTP endpoint:
-
-```bash
-POST /prepared-posts/fill-images
-```
+`imageFile` is required for prepared-post imports because the service no longer generates images automatically.
 
 ## Online Deployment
 
@@ -176,7 +165,7 @@ Setup notes:
 - Do not request `publish_actions`; Meta deprecated that permission and it cannot be used for publishing
 - If the requirement is letting end users share content to their own Facebook timelines, use Meta Sharing products instead of the Graph API publisher in this service
 - `image_url` must be publicly reachable and should resolve directly to a raster image such as PNG or JPEG; avoid SVG assets for Facebook posts
-- Prepared Facebook posts should use an uploaded image asset; do not use the `PREPARED_POST_IMAGE_API_BASE_URL` prompt fallback for Facebook
+- Prepared Facebook posts should use an uploaded image asset
 - When `image_url` is present, the publisher posts through the Page photos endpoint using the public image URL
 
 ## LinkedIn Publishing

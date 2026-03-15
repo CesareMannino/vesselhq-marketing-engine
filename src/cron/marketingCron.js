@@ -5,6 +5,7 @@ const imageService = require('../services/imageService');
 const publisherService = require('../services/publisherService');
 const analyticsService = require('../services/analyticsService');
 const preparedPostService = require('../services/preparedPostService');
+const { ensurePreparedPostHasManagedImage } = require('../services/preparedPostImageService');
 const logger = require('../utils/logger');
 const { getDailyCronExpression, getCronTimezone } = require('../utils/schedulerHelper');
 
@@ -18,6 +19,10 @@ async function runMarketingJob(options = {}) {
 
     if (preparedBatch.length > 0) {
       for (const preparedPost of preparedBatch) {
+        ensurePreparedPostHasManagedImage(
+          preparedPost.imageUrl,
+          `Prepared post ${preparedPost.importKey || preparedPost.id}`
+        );
         await publisherService.publishPost(preparedPost);
         await analyticsService.trackPostCreation(preparedPost);
       }

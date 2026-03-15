@@ -3,6 +3,7 @@ const preparedPostService = require('../services/preparedPostService');
 const preparedPostImportService = require('../services/preparedPostImportService');
 const publisherService = require('../services/publisherService');
 const analyticsService = require('../services/analyticsService');
+const { ensurePreparedPostHasManagedImage } = require('../services/preparedPostImageService');
 const logger = require('../utils/logger');
 
 async function importPreparedPosts(req, res) {
@@ -38,27 +39,6 @@ async function getPreparedQueue(req, res) {
     });
   } catch (error) {
     logger.error('Prepared queue lookup failed', {
-      message: error.message
-    });
-
-    res.status(500).json({
-      status: 'error',
-      message: error.message
-    });
-  }
-}
-
-async function fillPreparedPostImages(req, res) {
-  try {
-    const result = await preparedPostService.fillMissingPreparedPostImages(req.body && req.body.limit);
-
-    res.status(200).json({
-      status: 'ok',
-      message: 'Prepared post images filled',
-      result
-    });
-  } catch (error) {
-    logger.error('Prepared post image fill failed', {
       message: error.message
     });
 
@@ -131,6 +111,8 @@ async function publishPreparedPostNow(req, res) {
       });
     }
 
+    ensurePreparedPostHasManagedImage(post.imageUrl, `${platform} prepared post`);
+
     const publishResult = await publisherService.publishPost(post);
     await analyticsService.trackPostCreation(post);
     await preparedPostService.markPreparedPostsAsPublished([post.id]);
@@ -187,7 +169,6 @@ function getPreparedPostUi(req, res) {
 
 module.exports = {
   deletePreparedPostGroup,
-  fillPreparedPostImages,
   getPreparedQueue,
   getPreparedPostUi,
   importPreparedPosts,

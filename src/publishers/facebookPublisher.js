@@ -4,9 +4,7 @@ const FACEBOOK_GRAPH_API_BASE_URL = String(
   process.env.FACEBOOK_GRAPH_API_BASE_URL || 'https://graph.facebook.com'
 ).replace(/\/$/, '');
 const FACEBOOK_GRAPH_API_VERSION = String(process.env.FACEBOOK_GRAPH_API_VERSION || 'v23.0').trim();
-const PREPARED_POST_IMAGE_API_BASE_URL = String(
-  process.env.PREPARED_POST_IMAGE_API_BASE_URL || 'https://image.pollinations.ai/prompt'
-).replace(/\/$/, '');
+const LEGACY_PREPARED_POST_IMAGE_PREFIX = 'https://image.pollinations.ai/prompt';
 
 function getCredentials() {
   const pageId = String(process.env.FACEBOOK_PAGE_ID || '').trim();
@@ -47,20 +45,23 @@ function getAssetLabel(imageUrl) {
   }
 }
 
-function isPreparedPostPromptImageUrl(imageUrl) {
+function isLegacyPreparedPostPromptImageUrl(imageUrl) {
   const normalizedImageUrl = String(imageUrl || '').trim();
 
   if (!normalizedImageUrl) {
     return false;
   }
 
-  return normalizedImageUrl === PREPARED_POST_IMAGE_API_BASE_URL || normalizedImageUrl.startsWith(`${PREPARED_POST_IMAGE_API_BASE_URL}/`);
+  return (
+    normalizedImageUrl === LEGACY_PREPARED_POST_IMAGE_PREFIX ||
+    normalizedImageUrl.startsWith(`${LEGACY_PREPARED_POST_IMAGE_PREFIX}/`)
+  );
 }
 
 async function validatePhotoAsset(imageUrl) {
-  if (isPreparedPostPromptImageUrl(imageUrl)) {
+  if (isLegacyPreparedPostPromptImageUrl(imageUrl)) {
     throw new Error(
-      'Facebook photo publish requires a managed public raster image. PREPARED_POST_IMAGE_API_BASE_URL fallback images are not supported for Facebook posts; upload a PNG or JPEG instead.'
+      'Facebook photo publish requires an uploaded public raster image. Legacy Pollinations image URLs are not supported; upload a PNG or JPEG instead.'
     );
   }
 

@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
-    "import-prepared-posts": "node src/scripts/importPreparedPosts.js",
-    "fill-prepared-post-images": "node src/scripts/fillPreparedPostImages.js"
+    "import-prepared-posts": "node src/scripts/importPreparedPosts.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1009.0",

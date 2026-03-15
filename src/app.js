@@ -6,6 +6,15 @@ const { scheduleMarketingCron, runMarketingJob } = require('./cron/marketingCron
 const webhookRoutes = require('./routes/webhookRoutes');
 const postRoutes = require('./routes/postRoutes');
 const preparedPostRoutes = require('./routes/preparedPostRoutes');
+const {
+  buildAuthorizationUrl,
+  buildOAuthResult,
+  consumeState,
+  exchangeCodeForToken,
+  fetchUserInfo,
+  getRedirectUri,
+  renderCallbackHtml
+} = require('./services/linkedinAuthService');
 const { ensurePreparedPostSchema } = require('./services/schemaService');
 const logger = require('./utils/logger');
 
@@ -55,6 +64,69 @@ app.get('/health', (req, res) => {
     service: 'vesselhq-marketing-engine',
     timestamp: new Date().toISOString()
   });
+});
+
+app.get('/linkedin/connect', (req, res) => {
+  try {
+    const { authorizationUrl, redirectUri, scopes, statePayload } = buildAuthorizationUrl(req.query);
+
+    logger.info('LinkedIn OAuth started', {
+      mode: statePayload.mode,
+      organizationId: statePayload.organizationId || null,
+      redirectUri,
+      scopes
+    });
+
+    res.redirect(302, authorizationUrl);
+  } catch (error) {
+    logger.error('LinkedIn OAuth start failed', {
+      message: error.message
+    });
+
+    res.status(400).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
+app.get('/linkedin/callback', async (req, res) => {
+  try {
+    if (req.query.error) {
+      throw new Error(String(req.query.error_description || req.query.error));
+    }
+
+    const code = String(req.query.code || '').trim();
+    const state = String(req.query.state || '').trim();
+
+    if (!code || !state) {
+      throw new Error('LinkedIn callback requires both code and state.');
+    }
+
+    const statePayload = consumeState(state);
+    const tokenPayload = await exchangeCodeForToken(code);
+    const userInfo = await fetchUserInfo(tokenPayload.access_token);
+    const oauthResult = buildOAuthResult(tokenPayload, userInfo, statePayload);
+
+    logger.info('LinkedIn OAuth completed', {
+      mode: statePayload.mode,
+      organizationId: statePayload.organizationId || null,
+      personId: oauthResult.personId || null,
+      authorUrn: oauthResult.selectedAuthorUrn || null,
+      redirectUri: getRedirectUri()
+    });
+
+    res.status(200).send(renderCallbackHtml(oauthResult));
+  } catch (error) {
+    logger.error('LinkedIn OAuth callback failed', {
+      message: error.message
+    });
+
+    res.status(400).json({
+      status: 'error',
+      message: error.message
+    });
+  }
 });
 
 app.post('/run-marketing-job', async (req, res) => {

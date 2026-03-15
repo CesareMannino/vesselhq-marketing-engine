@@ -8,6 +8,7 @@ Node.js microservice that generates maritime marketing content, simulates AI ima
 - Daily cron job powered by `node-cron`
 - MySQL integration via `mysql2`
 - OpenAI-powered LinkedIn-style content generation
+- Real publishing support for LinkedIn, X, and Facebook
 - Prepared evergreen queue with ordered daily batches
 - Configurable asset storage with R2 / Cloudinary / local fallback
 - Modular services, configs, and social publisher integrations
@@ -160,6 +161,36 @@ Setup notes:
 - The app/user must have Page publishing permissions such as `pages_manage_posts`
 - When `image_url` is present, the publisher posts through the Page photos endpoint using the public image URL
 
+## LinkedIn Publishing
+
+The `linkedin` platform now publishes real posts through LinkedIn's versioned `rest/posts` and `rest/images` APIs.
+
+Required environment variables:
+
+```bash
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
+LINKEDIN_OAUTH_SCOPES=openid profile email w_member_social
+LINKEDIN_ACCESS_TOKEN=
+LINKEDIN_AUTHOR_URN=
+LINKEDIN_IMAGE_OWNER_URN=
+LINKEDIN_ORGANIZATION_ID=
+LINKEDIN_PERSON_ID=
+LINKEDIN_API_BASE_URL=https://api.linkedin.com
+LINKEDIN_API_VERSION=202511
+LINKEDIN_POST_VISIBILITY=PUBLIC
+```
+
+Setup notes:
+
+- Add `https://your-public-app/linkedin/callback` to the app's Authorized redirect URLs and start the flow from `/linkedin/connect`
+- Set `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` so the service can exchange the LinkedIn OAuth code for an access token
+- The built-in OAuth helper defaults to `openid profile email w_member_social`; add `w_organization_social` only when you need organization posting
+- Set `LINKEDIN_AUTHOR_URN` directly as `urn:li:person:...` or `urn:li:organization:...`; alternatively you can provide `LINKEDIN_ORGANIZATION_ID` or `LINKEDIN_PERSON_ID`
+- `LINKEDIN_IMAGE_OWNER_URN` is optional and defaults to the same URN used to publish the post
+- Member posting requires a token with `w_member_social`; organization posting requires `w_organization_social` and the caller must be authorized to post for that organization
+- `image_url` must be publicly reachable so the service can download it and upload it to LinkedIn before creating the post
+
 ## Cron Flow
 
 The scheduled job in `src/cron/marketingCron.js` runs once per day and:
@@ -186,7 +217,7 @@ If `CRON_TIMEZONE` is not set, the scheduler defaults to `Europe/Rome`.
 
 ## Notes
 
-- X and Facebook publishing are implemented. LinkedIn is still a placeholder.
+- LinkedIn, X, and Facebook publishing are implemented.
 - Set `APP_URL` if the service is not reachable at `http://localhost:3000`; local fallback image URLs are built from that base URL.
 - Prepared evergreen posts now live in `marketing_prepared_posts`.
 - Use `STORAGE_PROVIDER=r2` for production-ready public asset storage on Cloudflare R2.

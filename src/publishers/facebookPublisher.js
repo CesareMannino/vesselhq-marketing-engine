@@ -38,12 +38,24 @@ function buildFormBody(payload) {
 function parseFacebookError(error) {
   if (error.response && error.response.data && error.response.data.error) {
     const apiError = error.response.data.error;
-    return (
+    const message = (
       apiError.error_user_msg ||
       apiError.error_user_title ||
       apiError.message ||
       error.message
     );
+
+    const normalizedMessage = String(message || '').toLowerCase();
+
+    if (normalizedMessage.includes('publish_actions')) {
+      return 'Meta rejected the request because `publish_actions` was deprecated. Use a Facebook Page access token with `pages_manage_posts` for Page publishing, or use Meta Sharing products when the goal is user sharing.';
+    }
+
+    if (apiError.code === 200 && normalizedMessage.includes('permission')) {
+      return `${message} Facebook publishing in this service requires a Page access token for the target Page plus Page publishing permission such as \`pages_manage_posts\`.`;
+    }
+
+    return message;
   }
 
   return error.message;

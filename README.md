@@ -172,7 +172,9 @@ FACEBOOK_GRAPH_API_VERSION=v23.0
 Setup notes:
 
 - The access token must be a Page access token for the Page that will publish the post
-- The app/user must have Page publishing permissions such as `pages_manage_posts`
+- The app/user must have modern Page publishing permissions such as `pages_manage_posts`
+- Do not request `publish_actions`; Meta deprecated that permission and it cannot be used for publishing
+- If the requirement is letting end users share content to their own Facebook timelines, use Meta Sharing products instead of the Graph API publisher in this service
 - When `image_url` is present, the publisher posts through the Page photos endpoint using the public image URL
 
 ## LinkedIn Publishing

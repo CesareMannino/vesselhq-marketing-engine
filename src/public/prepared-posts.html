@@ -24,10 +24,19 @@ body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:rad
 main{width:min(1460px,calc(100% - 40px));margin:28px auto 48px}
 .hero{background:var(--panel);border:1px solid rgba(14,59,67,0.08);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
 .hero-band{padding:10px 22px;background:linear-gradient(135deg,#114651,var(--panel-strong));color:#f8f5ef;letter-spacing:.08em;text-transform:uppercase;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hero-band form{margin:0}
 .shortcuts{display:flex;gap:16px;flex-wrap:wrap}
+.logout-btn{border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.12);color:#f8f5ef;border-radius:999px;padding:6px 12px;font:inherit;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 .kbd{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(248,245,239,0.7);letter-spacing:0}
 kbd{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:10px;color:#f8f5ef}
 .hero-copy{padding:20px 22px;display:grid;gap:8px}
+.policy-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 22px 22px}
+.policy-card{border:1px solid rgba(14,59,67,0.08);border-radius:18px;padding:14px 16px;background:linear-gradient(180deg,rgba(255,255,255,0.8),rgba(255,248,238,0.92));display:grid;gap:6px}
+.policy-card strong{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--panel-strong)}
+.policy-card span{font-size:14px;line-height:1.45;color:#44575e}
+.policy-card.auto{background:linear-gradient(180deg,rgba(237,242,255,0.92),rgba(248,250,255,0.96))}
+.policy-card.manual{background:linear-gradient(180deg,rgba(232,244,251,0.9),rgba(247,251,253,0.96))}
+.policy-card.safety{background:linear-gradient(180deg,rgba(255,245,229,0.9),rgba(255,250,241,0.96))}
 h1{margin:0;line-height:1.05;font-weight:700;font-size:clamp(24px,4vw,42px);max-width:12ch}
 p{margin:0;color:var(--muted);line-height:1.55;font-size:15px}
 .layout{display:grid;grid-template-columns:minmax(760px,1.65fr) minmax(390px,0.95fr);gap:24px;align-items:start}
@@ -37,6 +46,7 @@ p{margin:0;color:var(--muted);line-height:1.55;font-size:15px}
 .toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 h2{font-size:20px;font-weight:700;margin:0}
 .hint{font-size:12px;color:var(--muted)}
+.hint strong{color:var(--panel-strong)}
 .edit-banner{font-size:12px;color:var(--accent-dark);font-weight:700}
 .rows{display:grid;gap:16px}
 .row-card{border:1px solid rgba(215,202,180,0.92);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.86),rgba(255,252,247,0.78));overflow:hidden;transition:box-shadow .15s,border-color .15s}
@@ -118,7 +128,7 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 .collapse-icon{font-size:12px;color:var(--muted);font-family:monospace}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--panel-strong);color:#f8f5ef;padding:10px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
-@media(max-width:1180px){.layout{grid-template-columns:1fr}.layout > aside.panel{position:static}}
+@media(max-width:1180px){.layout{grid-template-columns:1fr}.layout > aside.panel{position:static}.policy-bar{grid-template-columns:1fr}}
 @media(max-width:720px){main{width:min(100%,calc(100% - 20px));margin:16px auto 28px}.hero-copy{padding:16px}.panel{padding:16px;border-radius:20px}.queue-item{padding:14px}.queue-text{max-width:none}.queue-drop-zone{min-height:170px}}
 @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
@@ -127,17 +137,36 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 <main>
   <section class="hero">
     <div class="hero-band">
-      Marketing Engine / Prepared Queue
-      <div class="shortcuts">
-        <span class="kbd"><kbd>Ctrl/Cmd+N</kbd> add row</span>
-        <span class="kbd"><kbd>Ctrl/Cmd+Enter</kbd> upload</span>
-        <span class="kbd"><kbd>Ctrl/Cmd+D</kbd> duplicate last</span>
-        <span class="kbd"><kbd>paste</kbd> image from clipboard</span>
+      <span>Marketing Engine / Prepared Queue</span>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="shortcuts">
+          <span class="kbd"><kbd>Ctrl/Cmd+N</kbd> add row</span>
+          <span class="kbd"><kbd>Ctrl/Cmd+Enter</kbd> upload</span>
+          <span class="kbd"><kbd>Ctrl/Cmd+D</kbd> duplicate last</span>
+          <span class="kbd"><kbd>paste</kbd> image from clipboard</span>
+        </div>
+        <form method="post" action="/logout">
+          <button class="logout-btn" type="submit">Logout</button>
+        </form>
       </div>
     </div>
     <div class="hero-copy">
       <h1>Upload posts from the browser.</h1>
-      <p>Add prepared posts, attach an image for each one (drag, click, or <strong>paste from clipboard</strong>), choose platforms and save to the daily queue. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
+      <p>VesselHQ queue workspace. Add prepared posts, attach an image for each one (drag, click, or <strong>paste from clipboard</strong>), choose platforms and save to the daily queue. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
+    </div>
+    <div class="policy-bar">
+      <div class="policy-card auto">
+        <strong>Automatic Daily Publish</strong>
+        <span>Facebook only. The daily cron publishes only the next pending Facebook queue item.</span>
+      </div>
+      <div class="policy-card manual">
+        <strong>Manual Platforms</strong>
+        <span>X / Twitter and LinkedIn stay manual. They publish only if you explicitly select or trigger them from the queue.</span>
+      </div>
+      <div class="policy-card safety">
+        <strong>Safety Guard</strong>
+        <span>Publish-now actions require confirmation, and saving a batch with X / LinkedIn shows an extra warning.</span>
+      </div>
     </div>
   </section>
 
@@ -146,7 +175,7 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
       <div class="toolbar">
         <div>
           <h2>New Batch</h2>
-          <p class="hint">Order 1 = day one, 2 = day two...</p>
+          <p class="hint">Order 1 = day one, 2 = day two... <strong>Default platform: Facebook.</strong></p>
           <div id="edit-banner" class="edit-banner" hidden>Editing queued post</div>
         </div>
         <div class="toolbar-right">
@@ -167,7 +196,7 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
       <div class="toolbar">
         <div>
           <h2>Queue Overview</h2>
-          <p class="hint">Drop an image directly on each queue card. Sent posts stay visible here as reference.</p>
+          <p class="hint">Drop an image directly on each queue card. <strong>Auto daily:</strong> Facebook only. Sent posts stay visible here as reference.</p>
         </div>
         <button id="refresh-queue" class="ghost" type="button">Refresh</button>
       </div>
@@ -261,6 +290,45 @@ function fileToDataUrl(file) {
   });
 }
 
+function getManualPlatforms(platforms) {
+  return (platforms || []).filter((platform) => platform === 'twitter' || platform === 'linkedin');
+}
+
+function confirmManualPlatformSelection(entries) {
+  const manualPlatforms = [...new Set(
+    (entries || []).flatMap((entry) => getManualPlatforms(entry.platforms || []))
+  )];
+
+  if (!manualPlatforms.length) {
+    return true;
+  }
+
+  const labels = manualPlatforms.map((platform) =>
+    platform === 'twitter' ? 'X / Twitter' : 'LinkedIn'
+  );
+
+  return window.confirm(
+    `Safety check: ${labels.join(' + ')} are manual-only platforms in VesselHQ. They will not publish in the daily automatic run. Continue saving them to the queue?`
+  );
+}
+
+function confirmPublishNow(group, platform) {
+  const label =
+    platform === 'facebook'
+      ? 'Facebook'
+      : platform === 'linkedin'
+        ? 'LinkedIn'
+        : 'X';
+
+  const scheduleLabel = group && Number.isInteger(group.scheduledOrder)
+    ? `queue order ${group.scheduledOrder}`
+    : 'this queue item';
+
+  return window.confirm(
+    `Publish ${label} now for ${scheduleLabel}?\n\nThis bypasses the daily automatic schedule.`
+  );
+}
+
 function updateRowNumbers() {
   [...rowsContainer.children].forEach((row, i) => {
     row.querySelector('[data-role="row-number"]').textContent = String(i + 1);
@@ -345,7 +413,7 @@ function addRow(defaults = {}, collapsed = false) {
   card._existingImageUrl = defaults.imageUrl || null;
 
   const orderVal = defaults.scheduledOrder || rowsContainer.children.length + 1;
-  const platforms = defaults.platforms || ['twitter', 'facebook', 'linkedin'];
+  const platforms = defaults.platforms || ['facebook'];
 
   card.innerHTML = `
     <div class="row-head" data-action="toggle">
@@ -718,6 +786,13 @@ function startEditingGroup(group) {
 async function uploadEntries() {
   try {
     const editing = isEditMode();
+    const payload = editing ? collectEditEntry() : await collectEntries();
+
+    if (!confirmManualPlatformSelection(editing ? [payload] : payload)) {
+      setStatus('Save cancelled by safety check.', '');
+      return;
+    }
+
     setStatus(editing ? 'Saving changes...' : 'Preparing upload...', '');
     submitBtn.disabled = true;
     const response = editing
@@ -725,25 +800,25 @@ async function uploadEntries() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...collectEditEntry(),
+          ...payload,
           importKey: currentEditImportKey
         })
       })
       : await fetch('/prepared-posts/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ entries: await collectEntries() })
+        body: JSON.stringify({ entries: payload })
       });
-    const payload = await response.json();
+    const responsePayload = await response.json();
 
     if (!response.ok) {
-      throw new Error(payload.message || 'Upload failed.');
+      throw new Error(responsePayload.message || 'Upload failed.');
     }
 
     setStatus(
       editing
         ? 'Queued post updated successfully.'
-        : 'Uploaded successfully. Imported: ' + payload.result.importedCount,
+        : 'Uploaded successfully. Imported: ' + responsePayload.result.importedCount,
       'good'
     );
 
@@ -1105,6 +1180,12 @@ async function loadQueue() {
       button.addEventListener('click', async () => {
         const importKey = button.dataset.importKey;
         const platform = button.dataset.platform;
+        const group = groupedQueue.find((item) => item.importKey === importKey);
+
+        if (!confirmPublishNow(group, platform)) {
+          return;
+        }
+
         button.disabled = true;
 
         try {

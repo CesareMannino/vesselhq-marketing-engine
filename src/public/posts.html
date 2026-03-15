@@ -24,7 +24,9 @@ linear-gradient(180deg,#f7f3ec 0%,var(--bg) 100%);color:var(--ink);min-height:10
 main{width:min(1180px,calc(100% - 32px));margin:28px auto 48px}
 .hero,.panel,.post-card{background:var(--panel);border:1px solid rgba(24,54,64,0.08);box-shadow:var(--shadow)}
 .hero{border-radius:24px;overflow:hidden;margin-bottom:20px}
-.hero-band{padding:11px 22px;background:linear-gradient(135deg,#204552,var(--panel-strong));color:#f8f4eb;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.hero-band{padding:11px 22px;background:linear-gradient(135deg,#204552,var(--panel-strong));color:#f8f4eb;font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.hero-band form{margin:0}
+.logout-btn{border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.12);color:#f8f4eb;border-radius:999px;padding:6px 12px;font:inherit;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 .hero-copy{padding:22px;display:grid;gap:10px}
 h1{margin:0;line-height:1.02;font-size:clamp(30px,4vw,48px);max-width:10ch}
 p{margin:0;color:var(--muted);line-height:1.6}
@@ -67,7 +69,12 @@ a:hover{text-decoration:underline}
 <body>
 <main>
   <section class="hero">
-    <div class="hero-band">Vessel HQ Marketing Engine</div>
+    <div class="hero-band">
+      <span>Vessel HQ Marketing Engine</span>
+      <form method="post" action="/logout">
+        <button class="logout-btn" type="submit">Logout</button>
+      </form>
+    </div>
     <div class="hero-copy">
       <h1>Post History</h1>
       <p>Review generated and prepared posts from the service database. Filter by source and status, then inspect the latest content and media from one place.</p>

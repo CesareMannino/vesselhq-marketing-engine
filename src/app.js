@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { scheduleMarketingCron, runMarketingJob } = require('./cron/marketingCron');
+const { ensureAuthenticated } = require('./middleware/authMiddleware');
 const webhookRoutes = require('./routes/webhookRoutes');
 const postRoutes = require('./routes/postRoutes');
 const preparedPostRoutes = require('./routes/preparedPostRoutes');
@@ -15,19 +16,41 @@ const {
   getRedirectUri,
   renderCallbackHtml
 } = require('./services/linkedinAuthService');
+const {
+  buildClearSessionCookie,
+  buildSessionCookie,
+  createSession,
+  getSessionFromRequest,
+  invalidateSession,
+  isAuthEnabled,
+  verifyCredentials
+} = require('./services/authService');
 const { ensurePreparedPostSchema } = require('./services/schemaService');
 const logger = require('./utils/logger');
 
 const app = express();
 
 app.use(express.json({ limit: '25mb' }));
-app.use('/prepared-images', express.static(path.resolve(process.cwd(), 'prepared-images')));
+app.use(express.urlencoded({ extended: false }));
 
 function sendDashboard(res) {
   res.sendFile(path.resolve(process.cwd(), 'src', 'public', 'dashboard.html'));
 }
 
+function sendLogin(res) {
+  res.sendFile(path.resolve(process.cwd(), 'src', 'public', 'login.html'));
+}
+
+function getSafeNextPath(value) {
+  const next = String(value || '/dashboard').trim();
+  return next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
+}
+
 app.get('/', (req, res) => {
+  if (isAuthEnabled() && !getSessionFromRequest(req)) {
+    return res.redirect(302, '/login?next=%2Fdashboard');
+  }
+
   if (req.accepts('html')) {
     return sendDashboard(res);
   }
@@ -42,15 +65,51 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/login', (req, res) => {
+  if (!isAuthEnabled()) {
+    return res.redirect(302, '/dashboard');
+  }
+
+  if (getSessionFromRequest(req)) {
+    return res.redirect(302, getSafeNextPath(req.query.next));
+  }
+
+  return sendLogin(res);
+});
+
+app.post('/login', (req, res) => {
+  if (!isAuthEnabled()) {
+    return res.redirect(302, '/dashboard');
+  }
+
+  const username = String(req.body && req.body.username ? req.body.username : '').trim();
+  const password = String(req.body && req.body.password ? req.body.password : '');
+  const next = getSafeNextPath(req.body && req.body.next);
+
+  if (!verifyCredentials(username, password)) {
+    return res.redirect(302, `/login?error=1&next=${encodeURIComponent(next)}`);
+  }
+
+  const session = createSession(username);
+  res.setHeader('Set-Cookie', buildSessionCookie(session.token));
+  return res.redirect(302, next);
+});
+
+app.post('/logout', (req, res) => {
+  invalidateSession(req);
+  res.setHeader('Set-Cookie', buildClearSessionCookie());
+  return res.redirect(302, '/login');
+});
+
+app.get('/dashboard', ensureAuthenticated, (req, res) => {
   sendDashboard(res);
 });
 
-app.get('/queue', (req, res) => {
+app.get('/queue', ensureAuthenticated, (req, res) => {
   res.redirect(302, '/prepared-posts/ui');
 });
 
-app.get('/history', (req, res) => {
+app.get('/history', ensureAuthenticated, (req, res) => {
   res.redirect(302, '/posts/ui');
 });
 
@@ -66,7 +125,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.get('/linkedin/connect', (req, res) => {
+app.get('/linkedin/connect', ensureAuthenticated, (req, res) => {
   try {
     const { authorizationUrl, redirectUri, scopes, statePayload } = buildAuthorizationUrl(req.query);
 
@@ -90,7 +149,7 @@ app.get('/linkedin/connect', (req, res) => {
   }
 });
 
-app.get('/linkedin/callback', async (req, res) => {
+app.get('/linkedin/callback', ensureAuthenticated, async (req, res) => {
   try {
     if (req.query.error) {
       throw new Error(String(req.query.error_description || req.query.error));
@@ -129,6 +188,10 @@ app.get('/linkedin/callback', async (req, res) => {
   }
 });
 
+app.use('/webhooks', webhookRoutes);
+app.use(ensureAuthenticated);
+app.use('/prepared-images', express.static(path.resolve(process.cwd(), 'prepared-images')));
+
 app.post('/run-marketing-job', async (req, res) => {
   try {
     const result = await runMarketingJob({ throwOnError: true });
@@ -148,7 +211,6 @@ app.post('/run-marketing-job', async (req, res) => {
   }
 });
 
-app.use('/webhooks', webhookRoutes);
 app.use('/posts', postRoutes);
 app.use('/prepared-posts', preparedPostRoutes);
 

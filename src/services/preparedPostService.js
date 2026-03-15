@@ -57,7 +57,24 @@ function getSupportedImportKeys(importKeyBase) {
   );
 }
 
-async function getNextPreparedPostBatch() {
+function normalizePlatformFilter(platforms) {
+  if (!Array.isArray(platforms) || platforms.length === 0) {
+    return [];
+  }
+
+  const supportedPlatforms = new Set(['twitter', 'facebook', 'linkedin']);
+
+  return [...new Set(
+    platforms
+      .map((platform) => String(platform || '').trim().toLowerCase())
+      .filter((platform) => supportedPlatforms.has(platform))
+  )];
+}
+
+async function getNextPreparedPostBatch(platforms = []) {
+  const normalizedPlatforms = normalizePlatformFilter(platforms);
+  const platformClause = normalizedPlatforms.length > 0 ? 'AND platform IN (?)' : '';
+  const params = normalizedPlatforms.length > 0 ? [normalizedPlatforms, normalizedPlatforms] : [];
   const [batchRows] = await pool.query(
     `
       SELECT
@@ -74,13 +91,16 @@ async function getNextPreparedPostBatch() {
         published_at AS publishedAt
       FROM marketing_prepared_posts
       WHERE status = 'pending'
+        ${platformClause}
         AND scheduled_order = (
           SELECT MIN(scheduled_order)
           FROM marketing_prepared_posts
           WHERE status = 'pending'
+            ${platformClause}
         )
       ORDER BY id ASC
-    `
+    `,
+    params
   );
 
   return batchRows.map(mapPreparedPostRow);

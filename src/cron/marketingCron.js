@@ -7,7 +7,7 @@ const analyticsService = require('../services/analyticsService');
 const preparedPostService = require('../services/preparedPostService');
 const { ensurePreparedPostHasManagedImage } = require('../services/preparedPostImageService');
 const logger = require('../utils/logger');
-const { getDailyCronExpression, getCronTimezone } = require('../utils/schedulerHelper');
+const { getDailyCronExpression, getCronAutoPlatforms, getCronTimezone } = require('../utils/schedulerHelper');
 
 let marketingTask;
 
@@ -15,7 +15,8 @@ async function runMarketingJob(options = {}) {
   const { throwOnError = false } = options;
 
   try {
-    const preparedBatch = await preparedPostService.getNextPreparedPostBatch();
+    const autoPlatforms = getCronAutoPlatforms();
+    const preparedBatch = await preparedPostService.getNextPreparedPostBatch(autoPlatforms);
 
     if (preparedBatch.length > 0) {
       for (const preparedPost of preparedBatch) {
@@ -35,6 +36,7 @@ async function runMarketingJob(options = {}) {
         scheduledOrder: preparedBatch[0].scheduledOrder,
         postIds: preparedBatch.map((preparedPost) => preparedPost.id),
         platforms: preparedBatch.map((preparedPost) => preparedPost.platform),
+        autoPlatforms,
         contentSource: 'prepared'
       });
 
@@ -55,7 +57,7 @@ async function runMarketingJob(options = {}) {
 
     const post = await contentService.saveMarketingPost({
       topicId: topic.id,
-      platform: 'linkedin',
+      platform: autoPlatforms[0] || 'facebook',
       content,
       imagePrompt,
       imageUrl: imageAsset.secureUrl,

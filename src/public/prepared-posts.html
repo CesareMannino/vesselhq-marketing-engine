@@ -21,7 +21,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(209,123,45,0.18),transparent 28%),linear-gradient(180deg,#f8f2e9 0%,var(--bg) 100%);min-height:100vh}
-main{width:min(1200px,calc(100% - 32px));margin:28px auto 48px}
+main{width:min(1460px,calc(100% - 40px));margin:28px auto 48px}
 .hero{background:var(--panel);border:1px solid rgba(14,59,67,0.08);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
 .hero-band{padding:10px 22px;background:linear-gradient(135deg,#114651,var(--panel-strong));color:#f8f5ef;letter-spacing:.08em;text-transform:uppercase;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .shortcuts{display:flex;gap:16px;flex-wrap:wrap}
@@ -30,37 +30,38 @@ kbd{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);bo
 .hero-copy{padding:20px 22px;display:grid;gap:8px}
 h1{margin:0;line-height:1.05;font-weight:700;font-size:clamp(24px,4vw,42px);max-width:12ch}
 p{margin:0;color:var(--muted);line-height:1.55;font-size:15px}
-.layout{display:grid;grid-template-columns:2fr 1fr;gap:20px}
-.panel{background:var(--panel);border:1px solid rgba(14,59,67,0.08);border-radius:20px;box-shadow:var(--shadow);padding:20px}
+.layout{display:grid;grid-template-columns:minmax(760px,1.65fr) minmax(390px,0.95fr);gap:24px;align-items:start}
+.panel{background:linear-gradient(180deg,rgba(255,250,242,0.96),rgba(255,248,238,0.92));border:1px solid rgba(14,59,67,0.08);border-radius:24px;box-shadow:var(--shadow);padding:24px}
+.layout > aside.panel{position:sticky;top:20px}
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;margin-bottom:16px}
 .toolbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 h2{font-size:20px;font-weight:700;margin:0}
 .hint{font-size:12px;color:var(--muted)}
 .edit-banner{font-size:12px;color:var(--accent-dark);font-weight:700}
-.rows{display:grid;gap:14px}
-.row-card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,0.72);overflow:hidden;transition:box-shadow .15s}
+.rows{display:grid;gap:16px}
+.row-card{border:1px solid rgba(215,202,180,0.92);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,0.86),rgba(255,252,247,0.78));overflow:hidden;transition:box-shadow .15s,border-color .15s}
 .row-card:focus-within{box-shadow:0 0 0 2px var(--accent)}
 .row-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:rgba(14,59,67,0.04);border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
 .row-title{font-size:15px;font-weight:700;color:var(--panel-strong);display:flex;align-items:center;gap:8px}
 .row-actions{display:flex;gap:6px;align-items:center}
-.row-body{padding:16px;display:grid;gap:12px}
+.row-body{padding:18px;display:grid;gap:14px}
 .row-body.collapsed{display:none}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .field{display:grid;gap:4px}
 .field.wide{grid-column:1/-1}
 label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--panel-strong)}
-input[type="text"],input[type="number"],textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;color:var(--ink);background:#fffdf9;font-size:14px;transition:border-color .15s}
-input[type="text"]:focus,input[type="number"]:focus,textarea:focus{outline:none;border-color:var(--accent)}
+input[type="text"],input[type="number"],textarea{width:100%;border:1px solid rgba(215,202,180,0.94);border-radius:14px;padding:11px 14px;font:inherit;color:var(--ink);background:rgba(255,253,249,0.96);font-size:14px;transition:border-color .15s,box-shadow .15s,background .15s}
+input[type="text"]:focus,input[type="number"]:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(209,123,45,0.12);background:#fff}
 textarea{min-height:130px;resize:vertical}
 .char-count{font-size:11px;text-align:right;color:var(--muted);margin-top:2px}
 .char-count.warn{color:var(--warn)}
 .char-count.over{color:var(--bad);font-weight:700}
 .platforms{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}
-.check-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:#fffdf9;font-size:13px;cursor:pointer;transition:border-color .15s}
-.check-pill:hover{border-color:var(--accent)}
+.check-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid rgba(215,202,180,0.94);border-radius:999px;background:rgba(255,253,249,0.96);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.check-pill:hover{border-color:var(--accent);background:#fff}
 .check-pill input{width:auto;margin:0;cursor:pointer}
-.drop-zone{border:2px dashed var(--line);border-radius:10px;padding:20px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s;position:relative}
-.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(209,123,45,0.05)}
+.drop-zone{border:2px dashed rgba(215,202,180,0.96);border-radius:16px;padding:24px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s;position:relative;background:linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,249,241,0.92))}
+.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(209,123,45,0.05);box-shadow:0 0 0 3px rgba(209,123,45,0.08)}
 .drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
 .img-preview{width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:8px;display:block}
 button{border:0;border-radius:999px;padding:9px 16px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:transform 100ms,opacity 100ms,background .15s}
@@ -77,23 +78,49 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 .status-bar.bad{color:var(--bad)}
 .autosave-dot{width:7px;height:7px;border-radius:50%;background:var(--good);opacity:0;transition:opacity .3s;margin-left:auto;flex-shrink:0}
 .autosave-dot.visible{opacity:1}
-.queue-list{display:grid;gap:10px;margin-top:12px}
-.queue-item{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(255,255,255,0.72)}
-.queue-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--panel-strong)}
-.queue-meta .tag{background:rgba(14,59,67,0.08);border-radius:999px;padding:2px 8px}
+.queue-list{display:grid;gap:14px;margin-top:14px}
+.queue-item{border:1px solid rgba(215,202,180,0.9);border-radius:22px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,249,241,0.84));display:grid;grid-template-columns:1fr;gap:14px;align-items:start;transition:border-color .15s,box-shadow .15s,background .15s}
+.queue-item.pending{border-color:rgba(184,122,16,0.35)}
+.queue-item.partial{border-color:rgba(31,122,77,0.28);background:rgba(252,250,244,0.92)}
+.queue-item.sent{border-color:rgba(31,122,77,0.22);background:rgba(246,252,248,0.92)}
+.queue-item.failed{border-color:rgba(168,61,44,0.28)}
+.queue-main{min-width:0}
+.queue-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--panel-strong)}
+.queue-meta .tag{background:rgba(14,59,67,0.07);border:1px solid rgba(14,59,67,0.06);border-radius:999px;padding:5px 10px}
 .queue-platforms{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
-.platform-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.03em}
+.platform-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.03em}
 .platform-chip .icon{width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-family:monospace;background:rgba(255,255,255,0.85)}
+.platform-chip .platform-state{font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,0.75)}
 .platform-chip.twitter{background:#e8f4fb;color:#0f5f86;border:1px solid #b9dff1}
 .platform-chip.facebook{background:#edf2ff;color:#2346a0;border:1px solid #c7d4ff}
 .platform-chip.linkedin{background:#e7f4f6;color:#0b6171;border:1px solid #b4dde3}
-.queue-text{font-size:13px;line-height:1.45;color:var(--muted);white-space:pre-wrap}
+.platform-chip.status-pending .platform-state{color:#7d5d18;background:rgba(184,122,16,0.12)}
+.platform-chip.status-published .platform-state{color:var(--good);background:rgba(31,122,77,0.12)}
+.platform-chip.status-failed .platform-state{color:var(--bad);background:rgba(168,61,44,0.12)}
+.queue-text{font-size:13px;line-height:1.58;color:#44575e;white-space:pre-wrap;max-width:34ch}
 .queue-empty{color:var(--muted);font-style:italic;font-size:13px}
+.queue-actions-note{font-size:12px;color:var(--muted);margin-top:10px}
+.queue-side{display:grid;gap:8px}
+.queue-drop-zone{position:relative;border:2px dashed rgba(215,202,180,0.9);border-radius:18px;overflow:hidden;min-height:152px;display:flex;align-items:flex-end;justify-content:flex-start;background:
+  radial-gradient(circle at top right,rgba(95,157,173,0.12),transparent 32%),
+  linear-gradient(180deg,rgba(14,59,67,0.06),rgba(14,59,67,0.02));cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s;text-transform:none;letter-spacing:0;color:inherit}
+.queue-drop-zone:hover,.queue-drop-zone.over{border-color:var(--accent);box-shadow:0 0 0 3px rgba(209,123,45,0.12)}
+.queue-drop-zone.uploading{opacity:.7;pointer-events:none}
+.queue-drop-zone.disabled{cursor:default;background:linear-gradient(180deg,rgba(14,59,67,0.03),rgba(14,59,67,0.015))}
+.queue-drop-zone.disabled:hover{border-color:var(--line);box-shadow:none}
+.queue-drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.queue-drop-zone.disabled input[type="file"]{pointer-events:none}
+.queue-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.queue-drop-overlay{position:relative;z-index:1;width:100%;padding:14px;background:linear-gradient(180deg,rgba(23,32,38,0.06) 0%,rgba(23,32,38,0.82) 100%);color:#fff8ef;display:grid;gap:5px}
+.queue-drop-title{font-size:12px;font-weight:700;max-width:18ch}
+.queue-drop-meta{font-size:11px;color:rgba(255,248,239,0.84);line-height:1.45;max-width:26ch}
+.queue-drop-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.45}
 .collapse-icon{font-size:12px;color:var(--muted);font-family:monospace}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--panel-strong);color:#f8f5ef;padding:10px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
-@media(max-width:900px){.layout{grid-template-columns:1fr}}
-@media(max-width:640px){.grid{grid-template-columns:1fr}.hero-copy{padding:16px}.panel{padding:16px}}
+@media(max-width:1180px){.layout{grid-template-columns:1fr}.layout > aside.panel{position:static}}
+@media(max-width:720px){main{width:min(100%,calc(100% - 20px));margin:16px auto 28px}.hero-copy{padding:16px}.panel{padding:16px;border-radius:20px}.queue-item{padding:14px}.queue-text{max-width:none}.queue-drop-zone{min-height:170px}}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -139,8 +166,8 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
     <aside class="panel">
       <div class="toolbar">
         <div>
-          <h2>Pending Queue</h2>
-          <p class="hint">Next pending prepared posts.</p>
+          <h2>Queue Overview</h2>
+          <p class="hint">Drop an image directly on each queue card. Sent posts stay visible here as reference.</p>
         </div>
         <button id="refresh-queue" class="ghost" type="button">Refresh</button>
       </div>
@@ -174,6 +201,7 @@ const PLATFORM_META = {
   linkedin: { label: 'LinkedIn', icon: 'in', className: 'linkedin' }
 };
 const PLATFORM_ORDER = ['twitter', 'facebook', 'linkedin'];
+const QUEUE_LIMIT = 60;
 
 let autosaveTimer = null;
 let toastTimer = null;
@@ -203,6 +231,34 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function formatQueueDate(value) {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => resolve(event.target.result);
+    reader.onerror = () => reject(new Error('Could not read the selected image.'));
+    reader.readAsDataURL(file);
+  });
 }
 
 function updateRowNumbers() {
@@ -638,7 +694,7 @@ function startEditingGroup(group) {
     scheduledOrder: group.scheduledOrder,
     campaignTag: group.campaignTag || '',
     postType: group.postType || '',
-    platforms: group.platforms,
+    platforms: group.pendingPlatforms,
     imageUrl: group.imageUrl,
     imageName: 'Current image'
   });
@@ -649,7 +705,12 @@ function startEditingGroup(group) {
   card.querySelector('.collapse-icon').textContent = 'v';
 
   updateFormModeUi();
-  setStatus('Editing queued post. An uploaded image is required; keep the current one or choose a new file to replace it.', '');
+  setStatus(
+    group.publishedPlatforms && group.publishedPlatforms.length
+      ? 'Editing pending platforms only. Already sent platforms stay locked.'
+      : 'Editing queued post. An uploaded image is required; keep the current one or choose a new file to replace it.',
+    ''
+  );
   card.querySelector('[data-field="text"]').focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -724,74 +785,256 @@ function groupQueueItems(items) {
       groups.set(key, {
         importKey: key,
         scheduledOrder: item.scheduledOrder,
-        status: item.status,
         campaignTag: item.campaignTag,
         postType: item.postType,
         text: item.text,
         imageUrl: item.imageUrl,
-        platforms: []
+        platforms: [],
+        pendingPlatforms: [],
+        publishedPlatforms: [],
+        failedPlatforms: [],
+        platformStatuses: {},
+        latestPublishedAt: item.publishedAt || null
       });
     }
 
-    groups.get(key).platforms.push(item.platform);
+    const group = groups.get(key);
+    group.platforms.push(item.platform);
+    group.platformStatuses[item.platform] = item.status;
+
+    if (item.status === 'published') {
+      group.publishedPlatforms.push(item.platform);
+    } else if (item.status === 'failed') {
+      group.failedPlatforms.push(item.platform);
+    } else {
+      group.pendingPlatforms.push(item.platform);
+    }
+
+    if (!group.imageUrl && item.imageUrl) {
+      group.imageUrl = item.imageUrl;
+    }
+
+    if (item.publishedAt) {
+      const currentPublishedAt = group.latestPublishedAt ? new Date(group.latestPublishedAt).getTime() : 0;
+      const nextPublishedAt = new Date(item.publishedAt).getTime();
+
+      if (!currentPublishedAt || nextPublishedAt > currentPublishedAt) {
+        group.latestPublishedAt = item.publishedAt;
+      }
+    }
   });
 
-  return [...groups.values()].map((group) => ({
-    ...group,
-    platforms: [...new Set(group.platforms)].sort(
-      (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
-    )
-  }));
+  return [...groups.values()]
+    .map((group) => {
+      const platforms = [...new Set(group.platforms)].sort(
+        (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
+      );
+      const pendingPlatforms = [...new Set(group.pendingPlatforms)].sort(
+        (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
+      );
+      const publishedPlatforms = [...new Set(group.publishedPlatforms)].sort(
+        (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
+      );
+      const failedPlatforms = [...new Set(group.failedPlatforms)].sort(
+        (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
+      );
+      const statusParts = [];
+      let queueState = 'pending';
+      let statusLabel = 'Pending';
+
+      if (publishedPlatforms.length) {
+        statusParts.push(`${publishedPlatforms.length} sent`);
+      }
+      if (pendingPlatforms.length) {
+        statusParts.push(`${pendingPlatforms.length} pending`);
+      }
+      if (failedPlatforms.length) {
+        statusParts.push(`${failedPlatforms.length} failed`);
+      }
+
+      if (publishedPlatforms.length && !pendingPlatforms.length && !failedPlatforms.length) {
+        queueState = 'sent';
+        statusLabel = 'Sent';
+      } else if (publishedPlatforms.length && pendingPlatforms.length) {
+        queueState = 'partial';
+        statusLabel = 'Partially Sent';
+      } else if (failedPlatforms.length) {
+        queueState = 'failed';
+        statusLabel = pendingPlatforms.length ? 'Needs Attention' : 'Failed';
+      }
+
+      return {
+        ...group,
+        platforms,
+        pendingPlatforms,
+        publishedPlatforms,
+        failedPlatforms,
+        queueState,
+        statusLabel,
+        statusSummary: statusParts.join(' / '),
+        canEdit: pendingPlatforms.length > 0,
+        canUploadImage: pendingPlatforms.length > 0
+      };
+    })
+    .sort((left, right) => {
+      const stateOrder = { pending: 0, partial: 1, failed: 2, sent: 3 };
+      const stateDelta = (stateOrder[left.queueState] ?? 99) - (stateOrder[right.queueState] ?? 99);
+
+      if (stateDelta !== 0) {
+        return stateDelta;
+      }
+
+      if (left.scheduledOrder !== right.scheduledOrder) {
+        return left.scheduledOrder - right.scheduledOrder;
+      }
+
+      return left.importKey.localeCompare(right.importKey);
+    });
 }
 
-function renderPlatformChip(platform) {
+function renderPlatformChip(platform, status = 'pending') {
   const meta = PLATFORM_META[platform] || {
     label: platform,
     icon: platform.slice(0, 2).toUpperCase(),
     className: ''
   };
+  const stateLabel =
+    status === 'published'
+      ? 'Sent'
+      : status === 'failed'
+        ? 'Failed'
+        : 'Pending';
 
-  return `<span class="platform-chip ${meta.className}">
+  return `<span class="platform-chip ${meta.className} status-${escapeHtml(status)}">
     <span class="icon">${escapeHtml(meta.icon)}</span>
     <span>${escapeHtml(meta.label)}</span>
+    <span class="platform-state">${escapeHtml(stateLabel)}</span>
   </span>`;
 }
 
 function renderQueueGroup(group) {
   const publishNowButtons = [
-    group.platforms.includes('twitter')
+    group.pendingPlatforms.includes('twitter')
       ? `<button class="ghost" type="button" data-action="publish-now" data-platform="twitter" data-import-key="${escapeHtml(group.importKey)}">Publish X now</button>`
       : '',
-    group.platforms.includes('facebook')
+    group.pendingPlatforms.includes('facebook')
       ? `<button class="ghost" type="button" data-action="publish-now" data-platform="facebook" data-import-key="${escapeHtml(group.importKey)}">Publish Facebook now</button>`
       : '',
-    group.platforms.includes('linkedin')
+    group.pendingPlatforms.includes('linkedin')
       ? `<button class="ghost" type="button" data-action="publish-now" data-platform="linkedin" data-import-key="${escapeHtml(group.importKey)}">Publish LinkedIn now</button>`
       : ''
   ]
     .filter(Boolean)
     .join('');
+  const actionButtons = [
+    group.canEdit
+      ? `<button class="edit-sm" type="button" data-action="edit-queue-item" data-import-key="${escapeHtml(group.importKey)}">Edit</button>`
+      : '',
+    group.canEdit
+      ? `<button class="danger-sm" type="button" data-action="delete-queue-item" data-import-key="${escapeHtml(group.importKey)}">Delete</button>`
+      : '',
+    publishNowButtons
+  ]
+    .filter(Boolean)
+    .join('');
+  const queueDropTitle = group.canUploadImage
+    ? group.imageUrl
+      ? 'Drop image here to replace'
+      : 'Drop image here to attach'
+    : 'Already sent';
+  const queueDropMeta = group.canUploadImage
+    ? `Pending on ${group.pendingPlatforms.length} platform${group.pendingPlatforms.length > 1 ? 's' : ''}. Click to browse if easier.`
+    : group.latestPublishedAt
+      ? `Sent on ${formatQueueDate(group.latestPublishedAt)}`
+      : 'No pending platforms left for this item.';
 
-  return `<article class="queue-item">
-    <div class="queue-meta">
-      <span class="tag">Order ${group.scheduledOrder}</span>
-      <span class="tag">${escapeHtml(group.status)}</span>
-      ${group.campaignTag ? '<span class="tag">' + escapeHtml(group.campaignTag) + '</span>' : ''}
+  return `<article class="queue-item ${escapeHtml(group.queueState)}">
+    <div class="queue-main">
+      <div class="queue-meta">
+        <span class="tag">Order ${group.scheduledOrder}</span>
+        <span class="tag">${escapeHtml(group.statusLabel)}</span>
+        ${group.statusSummary ? '<span class="tag">' + escapeHtml(group.statusSummary) + '</span>' : ''}
+        ${group.latestPublishedAt ? '<span class="tag">Last sent ' + escapeHtml(formatQueueDate(group.latestPublishedAt)) + '</span>' : ''}
+        ${group.campaignTag ? '<span class="tag">' + escapeHtml(group.campaignTag) + '</span>' : ''}
+      </div>
+      <div class="queue-platforms">${group.platforms.map((platform) => renderPlatformChip(platform, group.platformStatuses[platform])).join('')}</div>
+      <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
+      ${
+        actionButtons
+          ? `<div class="queue-platforms">${actionButtons}</div>`
+          : '<div class="queue-actions-note">Already sent. The card stays visible here as queue history.</div>'
+      }
     </div>
-    <div class="queue-platforms">${group.platforms.map(renderPlatformChip).join('')}</div>
-    <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
-    <div class="queue-platforms">
-      <button class="edit-sm" type="button" data-action="edit-queue-item" data-import-key="${escapeHtml(group.importKey)}">Edit</button>
-      <button class="danger-sm" type="button" data-action="delete-queue-item" data-import-key="${escapeHtml(group.importKey)}">Delete</button>
-      ${publishNowButtons}
+    <div class="queue-side">
+      <label class="queue-drop-zone${group.canUploadImage ? '' : ' disabled'}" data-action="queue-drop-zone" data-import-key="${escapeHtml(group.importKey)}" tabindex="${group.canUploadImage ? '0' : '-1'}">
+        ${group.imageUrl ? `<img class="queue-thumb" src="${escapeHtml(group.imageUrl)}" alt="Queue image preview">` : '<div class="queue-drop-placeholder">No image attached yet</div>'}
+        <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-field="queue-image-file"${group.canUploadImage ? '' : ' disabled'}>
+        <span class="queue-drop-overlay">
+          <span class="queue-drop-title">${escapeHtml(queueDropTitle)}</span>
+          <span class="queue-drop-meta">${escapeHtml(queueDropMeta)}</span>
+        </span>
+      </label>
     </div>
   </article>`;
+}
+
+async function uploadQueueGroupImage(group, file, dropZone) {
+  if (!file) {
+    return;
+  }
+
+  if (!file.type.startsWith('image/')) {
+    setStatus('Attach a PNG, JPEG, WEBP, or GIF image.', 'bad');
+    return;
+  }
+
+  if (!group.canUploadImage) {
+    setStatus('This queue item has already been sent. No pending platforms remain to update.', 'bad');
+    return;
+  }
+
+  try {
+    dropZone?.classList.add('uploading');
+    const imageDataUrl = await fileToDataUrl(file);
+    const response = await fetch('/prepared-posts/group', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        importKey: group.importKey,
+        text: group.text,
+        scheduledOrder: group.scheduledOrder,
+        campaignTag: group.campaignTag || '',
+        postType: group.postType || '',
+        existingImageUrl: group.imageUrl || '',
+        platforms: group.pendingPlatforms,
+        imageName: file.name,
+        imageDataUrl
+      })
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || 'Could not update the queue image.');
+    }
+
+    if (currentEditImportKey === group.importKey) {
+      resetComposerToCreateMode();
+    }
+
+    setStatus('Queue image updated successfully.', 'good');
+    showToast('Queue image saved');
+    await loadQueue();
+  } catch (error) {
+    setStatus(error.message, 'bad');
+  } finally {
+    dropZone?.classList.remove('uploading');
+  }
 }
 
 async function loadQueue() {
   queueListNode.innerHTML = '<div class="queue-empty">Loading queue...</div>';
   try {
-    const response = await fetch('/prepared-posts/queue?limit=12');
+    const response = await fetch('/prepared-posts/queue?limit=' + QUEUE_LIMIT);
     const payload = await response.json();
 
     if (!response.ok) {
@@ -802,7 +1045,7 @@ async function loadQueue() {
 
     queueListNode.innerHTML = groupedQueue.length
       ? groupedQueue.map(renderQueueGroup).join('')
-      : '<div class="queue-empty">No pending prepared posts.</div>';
+      : '<div class="queue-empty">No prepared posts found.</div>';
 
     queueListNode.querySelectorAll('[data-action="edit-queue-item"]').forEach((button) => {
       button.addEventListener('click', () => {
@@ -897,6 +1140,50 @@ async function loadQueue() {
         } finally {
           button.disabled = false;
         }
+      });
+    });
+
+    queueListNode.querySelectorAll('[data-action="queue-drop-zone"]').forEach((dropZone) => {
+      const importKey = dropZone.dataset.importKey;
+      const group = groupedQueue.find((item) => item.importKey === importKey);
+
+      if (!group || !group.canUploadImage) {
+        return;
+      }
+
+      const fileInput = dropZone.querySelector('[data-field="queue-image-file"]');
+
+      dropZone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropZone.classList.add('over');
+      });
+
+      dropZone.addEventListener('dragleave', (event) => {
+        if (event.relatedTarget && dropZone.contains(event.relatedTarget)) {
+          return;
+        }
+
+        dropZone.classList.remove('over');
+      });
+
+      dropZone.addEventListener('drop', async (event) => {
+        event.preventDefault();
+        dropZone.classList.remove('over');
+        const file = [...(event.dataTransfer?.files || [])].find((item) => item.type.startsWith('image/'));
+        await uploadQueueGroupImage(group, file, dropZone);
+        fileInput.value = '';
+      });
+
+      dropZone.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', async () => {
+        await uploadQueueGroupImage(group, fileInput.files[0], dropZone);
+        fileInput.value = '';
       });
     });
   } catch (error) {

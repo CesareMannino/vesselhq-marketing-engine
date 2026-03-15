@@ -174,6 +174,40 @@ async function listPendingPreparedPosts(limit = 100) {
   return rows.map(mapPreparedPostRow);
 }
 
+async function listPreparedPostsForQueue(limit = 100) {
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 100, 500));
+  const [rows] = await pool.query(
+    `
+      SELECT
+        id,
+        import_key AS importKey,
+        text,
+        image_url AS imageUrl,
+        platform,
+        scheduled_order AS scheduledOrder,
+        status,
+        campaign_tag AS campaignTag,
+        post_type AS postType,
+        created_at AS createdAt,
+        published_at AS publishedAt
+      FROM marketing_prepared_posts
+      ORDER BY
+        CASE status
+          WHEN 'pending' THEN 0
+          WHEN 'failed' THEN 1
+          ELSE 2
+        END ASC,
+        scheduled_order ASC,
+        COALESCE(published_at, created_at) DESC,
+        id ASC
+      LIMIT ?
+    `,
+    [safeLimit]
+  );
+
+  return rows.map(mapPreparedPostRow);
+}
+
 async function getPendingPreparedPostGroup(importKeyBase) {
   const [rows] = await pool.query(
     `
@@ -377,6 +411,7 @@ module.exports = {
   getPendingPreparedPostByPlatform,
   getPendingPreparedPostGroup,
   getNextPreparedPostBatch,
+  listPreparedPostsForQueue,
   listPendingPreparedPosts,
   markPreparedPostsAsPublished,
   updatePendingPreparedPostGroup,

@@ -31,7 +31,7 @@ async function importPreparedPosts(req, res) {
 
 async function getPreparedQueue(req, res) {
   try {
-    const queue = await preparedPostService.listPendingPreparedPosts(req.query.limit);
+    const queue = await preparedPostService.listPreparedPostsForQueue(req.query.limit);
     res.status(200).json({
       status: 'ok',
       count: queue.length,

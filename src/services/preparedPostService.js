@@ -34,10 +34,17 @@ function getPlatformImportKeys(importKeyBase, platform) {
     facebook: '_fb',
     linkedin: '_li'
   };
+  const platformSuffix = suffixMap[safePlatform] || '';
+  const normalizedBase = safeImportKeyBase
+    .replace(new RegExp(`:${safePlatform}$`, 'i'), '')
+    .replace(new RegExp(`${platformSuffix}$`, 'i'), '');
 
   const keys = [
+    safeImportKeyBase,
+    `${normalizedBase}:${safePlatform}`,
+    `${normalizedBase}${platformSuffix}`,
     `${safeImportKeyBase}:${safePlatform}`,
-    `${safeImportKeyBase}${suffixMap[safePlatform] || ''}`
+    `${safeImportKeyBase}${platformSuffix}`
   ].filter(Boolean);
 
   return [...new Set(keys)];
@@ -263,11 +270,14 @@ async function updatePendingPreparedPostGroup(groupData) {
           WHERE status = 'pending'
             AND import_key IN (?)
         `,
-        [platformsToDelete.map((platform) => `${groupData.importKeyBase}:${platform}`)]
+        [platformsToDelete.flatMap((platform) => getPlatformImportKeys(groupData.importKeyBase, platform))]
       );
     }
 
     for (const platform of groupData.platforms) {
+      const existingRow = existingRows.find((row) => row.platform === platform);
+      const importKey = existingRow ? existingRow.importKey : `${groupData.importKeyBase}:${platform}`;
+
       await connection.query(
         `
           INSERT INTO marketing_prepared_posts (
@@ -291,7 +301,7 @@ async function updatePendingPreparedPostGroup(groupData) {
             status = 'pending'
         `,
         [
-          `${groupData.importKeyBase}:${platform}`,
+          importKey,
           groupData.text,
           groupData.imageUrl,
           platform,

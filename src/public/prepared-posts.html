@@ -701,7 +701,7 @@ async function uploadEntries() {
 
 function getQueueGroupKey(item) {
   if (item.importKey) {
-    return item.importKey.replace(/:(twitter|facebook|linkedin)$/i, '');
+    return item.importKey.replace(/(?::(twitter|facebook|linkedin)|_(tw|fb|li))$/i, '');
   }
 
   return [

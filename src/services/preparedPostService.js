@@ -21,8 +21,32 @@ function mapPreparedPostRow(row) {
   });
 }
 
+function getPlatformImportKeys(importKeyBase, platform) {
+  const safeImportKeyBase = String(importKeyBase || '').trim();
+  const safePlatform = String(platform || '').trim().toLowerCase();
+
+  if (!safeImportKeyBase || !safePlatform) {
+    return [];
+  }
+
+  const suffixMap = {
+    twitter: '_tw',
+    facebook: '_fb',
+    linkedin: '_li'
+  };
+
+  const keys = [
+    `${safeImportKeyBase}:${safePlatform}`,
+    `${safeImportKeyBase}${suffixMap[safePlatform] || ''}`
+  ].filter(Boolean);
+
+  return [...new Set(keys)];
+}
+
 function getSupportedImportKeys(importKeyBase) {
-  return ['twitter', 'facebook', 'linkedin'].map((platform) => `${importKeyBase}:${platform}`);
+  return ['twitter', 'facebook', 'linkedin'].flatMap((platform) =>
+    getPlatformImportKeys(importKeyBase, platform)
+  );
 }
 
 async function getNextPreparedPostBatch() {
@@ -172,6 +196,8 @@ async function getPendingPreparedPostGroup(importKeyBase) {
 }
 
 async function getPendingPreparedPostByPlatform(importKeyBase, platform) {
+  const candidateImportKeys = getPlatformImportKeys(importKeyBase, platform);
+
   await fillMissingPreparedPostImages();
 
   const [rows] = await pool.query(
@@ -190,10 +216,10 @@ async function getPendingPreparedPostByPlatform(importKeyBase, platform) {
         published_at AS publishedAt
       FROM marketing_prepared_posts
       WHERE status = 'pending'
-        AND import_key = ?
+        AND import_key IN (?)
       LIMIT 1
     `,
-    [`${importKeyBase}:${platform}`]
+    [candidateImportKeys]
   );
 
   if (rows.length === 0) {

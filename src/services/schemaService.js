@@ -131,6 +131,27 @@ async function ensurePreparedPostSchema() {
   }
 }
 
+async function ensureAuthSessionSchema() {
+  await pool.query(
+    `
+      CREATE TABLE IF NOT EXISTS marketing_auth_sessions (
+        token_hash CHAR(64) PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        expires_at BIGINT UNSIGNED NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        KEY idx_marketing_auth_sessions_expires_at (expires_at)
+      )
+    `
+  );
+}
+
+async function ensureDatabaseSchema() {
+  await ensurePreparedPostSchema();
+  await ensureAuthSessionSchema();
+}
+
 module.exports = {
+  ensureAuthSessionSchema,
+  ensureDatabaseSchema,
   ensurePreparedPostSchema
 };

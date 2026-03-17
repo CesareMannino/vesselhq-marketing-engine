@@ -72,6 +72,9 @@ if (next) {
 }
 
 if (error) {
+  if (error === 'rate_limit') {
+    document.getElementById('error-box').textContent = 'Too many login attempts. Wait a few minutes and try again.';
+  }
   document.getElementById('error-box').hidden = false;
 }
 </script>

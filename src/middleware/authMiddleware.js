@@ -20,27 +20,31 @@ function isHtmlRedirectRequest(req) {
   return req.method === 'GET' && HTML_REDIRECT_PATHS.has(req.path);
 }
 
-function ensureAuthenticated(req, res, next) {
-  if (!isAuthEnabled()) {
-    return next();
+async function ensureAuthenticated(req, res, next) {
+  try {
+    if (!isAuthEnabled()) {
+      return next();
+    }
+
+    const session = await getSessionFromRequest(req);
+
+    if (session) {
+      req.authSession = session;
+      return next();
+    }
+
+    if (isHtmlRedirectRequest(req)) {
+      return res.redirect(302, buildLoginRedirectTarget(req));
+    }
+
+    return res.status(401).json({
+      status: 'error',
+      message: 'Authentication required.',
+      login: '/login'
+    });
+  } catch (error) {
+    return next(error);
   }
-
-  const session = getSessionFromRequest(req);
-
-  if (session) {
-    req.authSession = session;
-    return next();
-  }
-
-  if (isHtmlRedirectRequest(req)) {
-    return res.redirect(302, buildLoginRedirectTarget(req));
-  }
-
-  return res.status(401).json({
-    status: 'error',
-    message: 'Authentication required.',
-    login: '/login'
-  });
 }
 
 module.exports = {

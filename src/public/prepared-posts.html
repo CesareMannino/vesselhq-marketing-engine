@@ -21,6 +21,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Georgia,"Times New Roman",serif;color:var(--ink);background:radial-gradient(circle at top left,rgba(209,123,45,0.18),transparent 28%),linear-gradient(180deg,#f8f2e9 0%,var(--bg) 100%);min-height:100vh}
+body.modal-open{overflow:hidden}
 main{width:min(1460px,calc(100% - 40px));margin:28px auto 48px}
 .hero{background:var(--panel);border:1px solid rgba(14,59,67,0.08);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
 .hero-band{padding:10px 22px;background:linear-gradient(135deg,#114651,var(--panel-strong));color:#f8f5ef;letter-spacing:.08em;text-transform:uppercase;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -168,9 +169,29 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 .collapse-icon{font-size:12px;color:var(--muted);font-family:monospace}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--panel-strong);color:#f8f5ef;padding:10px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
+.modal-shell{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(23,32,38,0.42);backdrop-filter:blur(4px)}
+.modal-shell[hidden]{display:none}
+.modal-panel{width:min(720px,100%);max-height:calc(100vh - 40px);overflow:auto;border:1px solid rgba(14,59,67,0.08);border-radius:24px;background:linear-gradient(180deg,rgba(255,250,242,0.98),rgba(255,247,236,0.98));box-shadow:0 24px 60px rgba(23,32,38,0.22);padding:24px;display:grid;gap:18px}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-copy{display:grid;gap:6px}
+.modal-copy h3{font-size:24px;line-height:1.05;color:var(--panel-strong)}
+.modal-copy p{font-size:14px}
+.modal-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:14px}
+.weekday-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.weekday-pill{display:grid;justify-items:center;gap:6px;padding:12px 10px;border:1px solid rgba(215,202,180,0.94);border-radius:18px;background:rgba(255,253,249,0.96);font-size:13px;font-weight:700;letter-spacing:0;color:var(--panel-strong);cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.weekday-pill:hover{border-color:var(--accent);background:#fff}
+.weekday-pill input{margin:0}
+.schedule-side{display:grid;gap:12px}
+.schedule-box{border:1px solid rgba(215,202,180,0.92);border-radius:18px;padding:14px;background:rgba(255,255,255,0.86);display:grid;gap:8px}
+.schedule-box strong{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--panel-strong)}
+.schedule-preview{font-size:22px;line-height:1.15;color:#173843}
+.schedule-feedback{min-height:20px;font-size:13px;line-height:1.45;color:var(--muted)}
+.schedule-feedback.bad{color:var(--bad)}
+.schedule-feedback.good{color:var(--good)}
+.schedule-foot{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 @media(max-width:1180px){.layout{grid-template-columns:1fr}.layout > aside.panel{position:static}.policy-bar{grid-template-columns:1fr}}
 @media(max-width:860px){.setup-panel-grid{grid-template-columns:1fr}}
-@media(max-width:720px){main{width:min(100%,calc(100% - 20px));margin:16px auto 28px}.hero-copy{padding:16px}.panel{padding:16px;border-radius:20px}.queue-summary{grid-template-columns:1fr}.queue-item,.queue-day{padding:14px}.queue-drop-zone{min-height:170px}}
+@media(max-width:720px){main{width:min(100%,calc(100% - 20px));margin:16px auto 28px}.hero-copy{padding:16px}.panel{padding:16px;border-radius:20px}.queue-summary{grid-template-columns:1fr}.queue-item,.queue-day{padding:14px}.queue-drop-zone{min-height:170px}.modal-panel{padding:18px}.modal-grid{grid-template-columns:1fr}.weekday-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -216,7 +237,7 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
       <div class="toolbar">
         <div>
           <h2>New Batch</h2>
-          <p class="hint">Order 1 = day one, 2 = day two... <strong>Facebook starts selected.</strong> Add X / LinkedIn only if this post also needs optional manual channels.</p>
+          <p class="hint">Order 1 = first scheduled run, 2 = second scheduled run... <strong>Facebook starts selected.</strong> Add X / LinkedIn only if this post also needs optional manual channels.</p>
           <div id="edit-banner" class="edit-banner" hidden>Editing queued post</div>
         </div>
         <div class="toolbar-right">
@@ -239,7 +260,10 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
           <h2>Queue Overview</h2>
           <p class="hint">Metrics, schedule coverage, full copy, image download, and delete-by-day live here. Sent posts stay visible as reference.</p>
         </div>
-        <button id="refresh-queue" class="ghost" type="button">Refresh</button>
+        <div class="toolbar-right">
+          <button id="open-schedule-setup" class="ghost" type="button">Schedule Setup</button>
+          <button id="refresh-queue" class="ghost" type="button">Refresh</button>
+        </div>
       </div>
       <div id="queue-summary" class="queue-summary">
         <div class="queue-summary-card">
@@ -256,6 +280,51 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 </main>
 
 <div id="toast" class="toast"></div>
+<div id="schedule-modal" class="modal-shell" hidden>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="schedule-modal-title">
+    <div class="modal-head">
+      <div class="modal-copy">
+        <h3 id="schedule-modal-title">Overall Schedule Setup</h3>
+        <p>Choose the weekdays and one shared publish time for the automatic queue. This applies overall to all auto-published posts, so order 1 uses the first enabled run, order 2 the second, and so on.</p>
+      </div>
+      <button id="close-schedule-setup" class="ghost" type="button">Close</button>
+    </div>
+    <form id="schedule-form" class="modal-grid">
+      <div class="schedule-box">
+        <strong>Weekdays</strong>
+        <div class="weekday-grid">
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="1"> Mon</label>
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="2"> Tue</label>
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="3"> Wed</label>
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="4"> Thu</label>
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="5"> Fri</label>
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="6"> Sat</label>
+          <label class="weekday-pill"><input data-schedule-weekday type="checkbox" value="0"> Sun</label>
+        </div>
+      </div>
+      <div class="schedule-side">
+        <div class="schedule-box">
+          <strong>Time</strong>
+          <input id="schedule-time" type="time" value="08:00" required>
+        </div>
+        <div class="schedule-box">
+          <strong>Timezone</strong>
+          <div id="schedule-timezone" class="hint">Europe/Rome</div>
+        </div>
+        <div class="schedule-box">
+          <strong>Preview</strong>
+          <div id="schedule-preview" class="schedule-preview">Daily at 08:00</div>
+          <p class="hint">This updates the server-side cron immediately for every queued post.</p>
+        </div>
+      </div>
+    </form>
+    <div id="schedule-feedback" class="schedule-feedback"></div>
+    <div class="schedule-foot">
+      <button id="cancel-schedule-setup" class="ghost" type="button">Cancel</button>
+      <button id="save-schedule-setup" class="primary" type="button">Save Schedule</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const rowsContainer = document.getElementById('rows');
@@ -265,12 +334,22 @@ const cancelEditBtn = document.getElementById('cancel-edit');
 const editBanner = document.getElementById('edit-banner');
 const submitBtn = document.getElementById('submit-upload');
 const refreshBtn = document.getElementById('refresh-queue');
+const scheduleSetupBtn = document.getElementById('open-schedule-setup');
 const statusText = document.getElementById('status-text');
 const statusBar = document.getElementById('status');
 const autosaveDot = document.getElementById('autosave-dot');
 const queueSummaryNode = document.getElementById('queue-summary');
 const queueListNode = document.getElementById('queue-list');
 const toastEl = document.getElementById('toast');
+const scheduleModal = document.getElementById('schedule-modal');
+const closeScheduleSetupBtn = document.getElementById('close-schedule-setup');
+const cancelScheduleSetupBtn = document.getElementById('cancel-schedule-setup');
+const saveScheduleSetupBtn = document.getElementById('save-schedule-setup');
+const scheduleForm = document.getElementById('schedule-form');
+const scheduleTimeInput = document.getElementById('schedule-time');
+const schedulePreview = document.getElementById('schedule-preview');
+const scheduleTimezone = document.getElementById('schedule-timezone');
+const scheduleFeedback = document.getElementById('schedule-feedback');
 
 const CHAR_LIMITS = { twitter: 280, linkedin: 3000, facebook: 63206 };
 const PLATFORM_META = {
@@ -279,11 +358,27 @@ const PLATFORM_META = {
   linkedin: { label: 'LinkedIn', icon: 'in', className: 'linkedin' }
 };
 const PLATFORM_ORDER = ['twitter', 'facebook', 'linkedin'];
+const WEEKDAY_META = [
+  { value: 1, label: 'Mon', fullLabel: 'Monday' },
+  { value: 2, label: 'Tue', fullLabel: 'Tuesday' },
+  { value: 3, label: 'Wed', fullLabel: 'Wednesday' },
+  { value: 4, label: 'Thu', fullLabel: 'Thursday' },
+  { value: 5, label: 'Fri', fullLabel: 'Friday' },
+  { value: 6, label: 'Sat', fullLabel: 'Saturday' },
+  { value: 0, label: 'Sun', fullLabel: 'Sunday' }
+];
 const QUEUE_LIMIT = 60;
 
 let autosaveTimer = null;
 let toastTimer = null;
 let currentEditImportKey = null;
+let currentScheduleSettings = {
+  weekdays: WEEKDAY_META.map((entry) => entry.value),
+  hour: 8,
+  minute: 0,
+  time: '08:00',
+  timezone: 'Europe/Rome'
+};
 
 function showToast(msg) {
   clearTimeout(toastTimer);
@@ -367,7 +462,40 @@ function formatQueueTimeLabel(value, timeZone) {
   }).format(date);
 }
 
-function parseDailyCronExpression(expression) {
+function normalizeScheduleSettings(scheduleSettings = {}) {
+  const weekdays = [...new Set(
+    (Array.isArray(scheduleSettings.weekdays) ? scheduleSettings.weekdays : [])
+      .map((weekday) => Number(weekday))
+      .filter((weekday) => Number.isInteger(weekday) && weekday >= 0 && weekday <= 6)
+  )].sort((left, right) => {
+    const leftIndex = WEEKDAY_META.findIndex((entry) => entry.value === left);
+    const rightIndex = WEEKDAY_META.findIndex((entry) => entry.value === right);
+    return leftIndex - rightIndex;
+  });
+  const timeValue = String(scheduleSettings.time || '').trim();
+  const timeMatch = timeValue.match(/^(\d{1,2}):(\d{2})$/);
+  const hour = timeMatch ? Number(timeMatch[1]) : Number(scheduleSettings.hour);
+  const minute = timeMatch ? Number(timeMatch[2]) : Number(scheduleSettings.minute);
+  const timezone = String(scheduleSettings.timezone || '').trim();
+
+  if (!weekdays.length || !Number.isInteger(hour) || !Number.isInteger(minute)) {
+    return null;
+  }
+
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+    return null;
+  }
+
+  return {
+    weekdays,
+    hour,
+    minute,
+    time: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+    timezone: timezone || 'Europe/Rome'
+  };
+}
+
+function parseScheduleSettingsFromCron(expression, timeZone) {
   const parts = String(expression || '').trim().split(/\s+/);
 
   if (parts.length !== 5) {
@@ -386,16 +514,41 @@ function parseDailyCronExpression(expression) {
     safeHour < 0 ||
     safeHour > 23 ||
     dayOfMonth !== '*' ||
-    month !== '*' ||
-    dayOfWeek !== '*'
+    month !== '*'
   ) {
     return null;
   }
 
-  return {
+  const weekdays = dayOfWeek === '*'
+    ? WEEKDAY_META.map((entry) => entry.value)
+    : dayOfWeek
+      .split(',')
+      .map((value) => Number(value))
+      .map((value) => (value === 7 ? 0 : value));
+
+  return normalizeScheduleSettings({
+    weekdays,
     hour: safeHour,
-    minute: safeMinute
-  };
+    minute: safeMinute,
+    timezone: timeZone
+  });
+}
+
+function getScheduleSettingsFromOverview(overview = {}) {
+  return normalizeScheduleSettings(overview.scheduleSettings || {})
+    || parseScheduleSettingsFromCron(overview.cronExpression, overview.cronTimezone);
+}
+
+function formatWeekdayList(weekdays = []) {
+  const labels = WEEKDAY_META
+    .filter((entry) => weekdays.includes(entry.value))
+    .map((entry) => entry.label);
+
+  if (labels.length === WEEKDAY_META.length) {
+    return 'Every day';
+  }
+
+  return labels.join(', ');
 }
 
 function getZonedDateParts(date, timeZone) {
@@ -429,6 +582,10 @@ function shiftZonedDay(parts, offsetDays) {
   };
 }
 
+function getWeekdayFromZonedParts(parts) {
+  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay();
+}
+
 function buildDateFromZonedParts(parts, timeZone) {
   let utcMillis = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
 
@@ -455,42 +612,64 @@ function buildDateFromZonedParts(parts, timeZone) {
   return new Date(utcMillis);
 }
 
-function getNextDailyRunDate(overview) {
-  const cronTime = parseDailyCronExpression(overview && overview.cronExpression);
-  const timeZone = overview && overview.cronTimezone;
+function getNextScheduledRunDate(scheduleSettings, fromDate = new Date()) {
+  const safeSettings = normalizeScheduleSettings(scheduleSettings);
 
-  if (!cronTime) {
+  if (!safeSettings) {
     return null;
   }
 
-  const now = new Date();
-  const nowParts = getZonedDateParts(now, timeZone);
-  let candidate = buildDateFromZonedParts(
-    {
-      year: nowParts.year,
-      month: nowParts.month,
-      day: nowParts.day,
-      hour: cronTime.hour,
-      minute: cronTime.minute,
-      second: 0
-    },
-    timeZone
-  );
+  const safeFromDate = fromDate instanceof Date ? fromDate : new Date(fromDate);
+  const timeZone = safeSettings.timezone;
+  const fromParts = getZonedDateParts(safeFromDate, timeZone);
 
-  if (candidate <= now) {
-    const nextDayParts = shiftZonedDay(nowParts, 1);
-    candidate = buildDateFromZonedParts(
+  for (let offset = 0; offset < 14; offset += 1) {
+    const dayParts = offset === 0 ? {
+      year: fromParts.year,
+      month: fromParts.month,
+      day: fromParts.day
+    } : shiftZonedDay(fromParts, offset);
+    const weekday = getWeekdayFromZonedParts(dayParts);
+
+    if (!safeSettings.weekdays.includes(weekday)) {
+      continue;
+    }
+
+    const candidate = buildDateFromZonedParts(
       {
-        ...nextDayParts,
-        hour: cronTime.hour,
-        minute: cronTime.minute,
+        ...dayParts,
+        hour: safeSettings.hour,
+        minute: safeSettings.minute,
         second: 0
       },
       timeZone
     );
+
+    if (candidate > safeFromDate) {
+      return candidate;
+    }
   }
 
-  return candidate;
+  return null;
+}
+
+function getUpcomingScheduledRunDates(scheduleSettings, count, fromDate = new Date()) {
+  const safeCount = Math.max(0, Number(count) || 0);
+  const runs = [];
+  let cursor = fromDate instanceof Date ? fromDate : new Date(fromDate);
+
+  for (let index = 0; index < safeCount; index += 1) {
+    const nextRun = getNextScheduledRunDate(scheduleSettings, cursor);
+
+    if (!nextRun) {
+      break;
+    }
+
+    runs.push(nextRun);
+    cursor = new Date(nextRun.getTime() + 60 * 1000);
+  }
+
+  return runs;
 }
 
 async function copyTextToClipboard(text) {
@@ -1258,8 +1437,7 @@ function groupQueueItems(items) {
 function buildQueueDays(groups, overview = {}) {
   const days = new Map();
   const autoPlatforms = new Set((overview.autoPlatforms || []).map((platform) => String(platform).toLowerCase()));
-  const nextDailyRun = getNextDailyRunDate(overview);
-  let autoDayOffset = 0;
+  const scheduleSettings = getScheduleSettingsFromOverview(overview);
 
   groups.forEach((group) => {
     const scheduledOrder = Number(group.scheduledOrder) || 0;
@@ -1293,32 +1471,47 @@ function buildQueueDays(groups, overview = {}) {
     }
   });
 
-  return [...days.values()]
+  const sortedDays = [...days.values()]
     .sort((left, right) => left.scheduledOrder - right.scheduledOrder)
     .map((day) => {
       const autoPendingPlatforms = [...day.autoPendingPlatforms].sort(
         (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
       );
-      let autoPublishAt = null;
-
-      if (autoPendingPlatforms.length && nextDailyRun) {
-        autoPublishAt = new Date(nextDailyRun.getTime() + autoDayOffset * 24 * 60 * 60 * 1000);
-        autoDayOffset += 1;
-      }
 
       return {
         ...day,
         autoPendingPlatforms,
-        autoPublishAt,
+        autoPublishAt: null,
         canDeleteDay: day.pendingGroupCount > 0
       };
     });
+
+  if (!scheduleSettings) {
+    return sortedDays;
+  }
+
+  const scheduledRuns = getUpcomingScheduledRunDates(
+    scheduleSettings,
+    sortedDays.filter((entry) => entry.autoPendingPlatforms.length > 0).length
+  );
+  let autoRunIndex = 0;
+
+  return sortedDays.map((day) => {
+    if (!day.autoPendingPlatforms.length || !scheduledRuns[autoRunIndex]) {
+      return day;
+    }
+
+    const nextDay = { ...day, autoPublishAt: scheduledRuns[autoRunIndex] };
+    autoRunIndex += 1;
+    return nextDay;
+  });
 }
 
 function renderQueueSummary(groups, days, overview = {}) {
   const pendingGroups = groups.filter((group) => group.pendingPlatforms.length > 0).length;
   const pendingPlatformPosts = groups.reduce((sum, group) => sum + group.pendingPlatforms.length, 0);
   const autoPlatforms = new Set((overview.autoPlatforms || []).map((platform) => String(platform).toLowerCase()));
+  const scheduleSettings = getScheduleSettingsFromOverview(overview);
   const autoPendingPlatformPosts = groups.reduce(
     (sum, group) => sum + group.pendingPlatforms.filter((platform) => autoPlatforms.has(platform)).length,
     0
@@ -1327,11 +1520,13 @@ function renderQueueSummary(groups, days, overview = {}) {
   const pendingDays = days.filter((day) => day.pendingGroupCount > 0).length;
   const autoDays = days.filter((day) => day.autoPendingPlatforms.length > 0);
   const lastCoveredDay = autoDays.length ? autoDays[autoDays.length - 1] : null;
-  const nextRun = getNextDailyRunDate(overview);
-  const cronTime = parseDailyCronExpression(overview.cronExpression);
+  const nextRun = getNextScheduledRunDate(scheduleSettings);
   const autoPlatformsLabel = (overview.autoPlatforms || [])
     .map((platform) => (PLATFORM_META[platform] ? PLATFORM_META[platform].label : platform))
     .join(', ');
+  const scheduleSummary = scheduleSettings
+    ? `${formatWeekdayList(scheduleSettings.weekdays)} at ${scheduleSettings.time}`
+    : 'Custom schedule';
 
   queueSummaryNode.innerHTML = [
     `<div class="queue-summary-card">
@@ -1341,8 +1536,8 @@ function renderQueueSummary(groups, days, overview = {}) {
     </div>`,
     `<div class="queue-summary-card">
       <strong>Auto Publish</strong>
-      <div class="queue-summary-value">${cronTime ? `${String(cronTime.hour).padStart(2, '0')}:${String(cronTime.minute).padStart(2, '0')}` : escapeHtml(overview.cronExpression || 'Custom')}</div>
-      <div class="queue-summary-detail">${nextRun ? `Next run ${formatQueueDayLabel(nextRun, overview.cronTimezone)} at ${formatQueueTimeLabel(nextRun, overview.cronTimezone)}` : 'Next run not derived from this cron expression.'} ${overview.cronTimezone ? `(${escapeHtml(overview.cronTimezone)})` : ''}. ${autoPlatformsLabel ? `Auto: ${escapeHtml(autoPlatformsLabel)}.` : ''}</div>
+      <div class="queue-summary-value">${scheduleSettings ? escapeHtml(scheduleSettings.time) : escapeHtml(overview.cronExpression || 'Custom')}</div>
+      <div class="queue-summary-detail">${escapeHtml(scheduleSummary)}. ${nextRun ? `Next run ${formatQueueDayLabel(nextRun, overview.cronTimezone)} at ${formatQueueTimeLabel(nextRun, overview.cronTimezone)}` : 'Next run not derived from this schedule.'} ${overview.cronTimezone ? `(${escapeHtml(overview.cronTimezone)})` : ''}. ${autoPlatformsLabel ? `Auto: ${escapeHtml(autoPlatformsLabel)}.` : ''}</div>
     </div>`,
     `<div class="queue-summary-card">
       <strong>Coverage</strong>
@@ -1538,6 +1733,111 @@ async function uploadQueueGroupImage(group, file, dropZone) {
   }
 }
 
+function applyScheduleSettingsToModal(scheduleSettings) {
+  const safeSettings = normalizeScheduleSettings(scheduleSettings) || {
+    weekdays: [1, 2, 3, 4, 5, 6, 0],
+    time: '08:00',
+    hour: 8,
+    minute: 0,
+    timezone: 'Europe/Rome'
+  };
+
+  scheduleForm.querySelectorAll('[data-schedule-weekday]').forEach((checkbox) => {
+    checkbox.checked = safeSettings.weekdays.includes(Number(checkbox.value));
+  });
+  scheduleTimeInput.value = safeSettings.time;
+  scheduleTimezone.textContent = safeSettings.timezone;
+  updateSchedulePreview();
+}
+
+function readScheduleSettingsFromModal() {
+  const weekdays = [...scheduleForm.querySelectorAll('[data-schedule-weekday]:checked')].map((checkbox) => Number(checkbox.value));
+
+  return normalizeScheduleSettings({
+    weekdays,
+    time: scheduleTimeInput.value,
+    timezone: currentScheduleSettings && currentScheduleSettings.timezone
+      ? currentScheduleSettings.timezone
+      : 'Europe/Rome'
+  });
+}
+
+function updateSchedulePreview() {
+  const nextSettings = readScheduleSettingsFromModal();
+  schedulePreview.textContent = nextSettings
+    ? `${formatWeekdayList(nextSettings.weekdays)} at ${nextSettings.time}`
+    : 'Select at least one weekday and a valid time';
+  saveScheduleSetupBtn.disabled = !nextSettings;
+
+  if (!nextSettings) {
+    scheduleFeedback.textContent = 'Select at least one weekday before saving the overall schedule.';
+    scheduleFeedback.className = 'schedule-feedback bad';
+    return;
+  }
+
+  scheduleFeedback.textContent = '';
+  scheduleFeedback.className = 'schedule-feedback';
+}
+
+function openScheduleSetup() {
+  applyScheduleSettingsToModal(currentScheduleSettings);
+  scheduleModal.hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+function closeScheduleSetup() {
+  scheduleModal.hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
+async function saveScheduleSetup() {
+  const nextSettings = readScheduleSettingsFromModal();
+
+  if (!nextSettings) {
+    scheduleFeedback.textContent = 'Select at least one weekday before saving the overall schedule.';
+    scheduleFeedback.className = 'schedule-feedback bad';
+    setStatus('Select at least one weekday and a valid time before saving the overall schedule.', 'bad');
+    return;
+  }
+
+  saveScheduleSetupBtn.disabled = true;
+
+  try {
+    scheduleFeedback.textContent = 'Saving overall schedule...';
+    scheduleFeedback.className = 'schedule-feedback';
+    setStatus('Saving overall schedule...', '');
+    const response = await fetch('/prepared-posts/schedule', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        weekdays: nextSettings.weekdays,
+        time: nextSettings.time
+      })
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || 'Could not update the overall schedule.');
+    }
+
+    currentScheduleSettings = normalizeScheduleSettings(payload.scheduleSettings || nextSettings) || nextSettings;
+    scheduleFeedback.textContent = 'Overall schedule saved.';
+    scheduleFeedback.className = 'schedule-feedback good';
+    closeScheduleSetup();
+    setStatus('Overall automatic schedule updated successfully.', 'good');
+    showToast('Schedule updated');
+    await loadQueue();
+  } catch (error) {
+    scheduleFeedback.textContent = error.message || 'Could not update the overall schedule.';
+    scheduleFeedback.className = 'schedule-feedback bad';
+    setStatus(error.message, 'bad');
+  } finally {
+    updateSchedulePreview();
+  }
+}
+
 async function loadQueue() {
   queueSummaryNode.innerHTML = `<div class="queue-summary-card">
     <strong>Queue snapshot</strong>
@@ -1555,6 +1855,7 @@ async function loadQueue() {
     }
 
     const overview = payload.overview || {};
+    currentScheduleSettings = getScheduleSettingsFromOverview(overview);
     const groupedQueue = groupQueueItems(payload.queue);
     const queueDays = buildQueueDays(groupedQueue, overview);
 
@@ -1824,6 +2125,11 @@ document.addEventListener('paste', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !scheduleModal.hidden) {
+    closeScheduleSetup();
+    return;
+  }
+
   const mod = event.metaKey || event.ctrlKey;
 
   if (mod && event.key === 'n') {
@@ -1861,11 +2167,25 @@ cancelEditBtn.addEventListener('click', () => {
 });
 submitBtn.addEventListener('click', uploadEntries);
 refreshBtn.addEventListener('click', loadQueue);
+scheduleSetupBtn.addEventListener('click', openScheduleSetup);
+closeScheduleSetupBtn.addEventListener('click', closeScheduleSetup);
+cancelScheduleSetupBtn.addEventListener('click', closeScheduleSetup);
+saveScheduleSetupBtn.addEventListener('click', saveScheduleSetup);
+scheduleForm.querySelectorAll('[data-schedule-weekday]').forEach((checkbox) => {
+  checkbox.addEventListener('change', updateSchedulePreview);
+});
+scheduleTimeInput.addEventListener('input', updateSchedulePreview);
+scheduleModal.addEventListener('click', (event) => {
+  if (event.target === scheduleModal) {
+    closeScheduleSetup();
+  }
+});
 
 if (!loadDraft()) {
   addRow({ importKey: 'awareness-march-2026-post-01', scheduledOrder: 1, campaignTag: 'awareness_march2026', postType: 'relatable_realistic' });
 }
 updateFormModeUi();
+updateSchedulePreview();
 loadQueue();
 </script>
 </body>

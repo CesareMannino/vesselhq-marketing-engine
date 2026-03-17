@@ -47,3 +47,9 @@ CREATE TABLE IF NOT EXISTS marketing_metrics (
   CONSTRAINT fk_marketing_metrics_post
     FOREIGN KEY (post_id) REFERENCES marketing_posts(id)
 );
+
+CREATE TABLE IF NOT EXISTS marketing_app_settings (
+  setting_key VARCHAR(100) PRIMARY KEY,
+  setting_value LONGTEXT NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

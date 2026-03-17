@@ -275,7 +275,11 @@ async function bootstrap() {
 
     app.listen(port, () => {
       logger.info(`Server listening on port ${port}`);
-      scheduleMarketingCron();
+      scheduleMarketingCron().catch((error) => {
+        logger.error('Marketing cron schedule failed', {
+          message: error.message
+        });
+      });
     });
   } catch (error) {
     logger.error('Server startup failed', {

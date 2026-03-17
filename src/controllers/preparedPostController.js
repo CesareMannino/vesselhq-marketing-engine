@@ -4,7 +4,9 @@ const preparedPostImportService = require('../services/preparedPostImportService
 const publisherService = require('../services/publisherService');
 const analyticsService = require('../services/analyticsService');
 const { ensurePreparedPostHasManagedImage } = require('../services/preparedPostImageService');
-const { getCronAutoPlatforms, getCronTimezone, getDailyCronExpression } = require('../utils/schedulerHelper');
+const { getQueueScheduleSettings, updateQueueScheduleSettings } = require('../services/schedulerSettingsService');
+const { scheduleMarketingCron } = require('../cron/marketingCron');
+const { getCronAutoPlatforms } = require('../utils/schedulerHelper');
 const logger = require('../utils/logger');
 
 async function importPreparedPosts(req, res) {
@@ -33,14 +35,16 @@ async function importPreparedPosts(req, res) {
 async function getPreparedQueue(req, res) {
   try {
     const queue = await preparedPostService.listPreparedPostsForQueue(req.query.limit);
+    const scheduleSettings = await getQueueScheduleSettings();
     res.status(200).json({
       status: 'ok',
       count: queue.length,
       queue,
       overview: {
         autoPlatforms: getCronAutoPlatforms(),
-        cronExpression: getDailyCronExpression(),
-        cronTimezone: getCronTimezone()
+        cronExpression: scheduleSettings.cronExpression,
+        cronTimezone: scheduleSettings.timezone,
+        scheduleSettings
       }
     });
   } catch (error) {
@@ -49,6 +53,48 @@ async function getPreparedQueue(req, res) {
     });
 
     res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+}
+
+async function getPreparedScheduleSettings(req, res) {
+  try {
+    const scheduleSettings = await getQueueScheduleSettings();
+
+    res.status(200).json({
+      status: 'ok',
+      scheduleSettings
+    });
+  } catch (error) {
+    logger.error('Prepared schedule settings lookup failed', {
+      message: error.message
+    });
+
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+}
+
+async function updatePreparedScheduleSettings(req, res) {
+  try {
+    const scheduleSettings = await updateQueueScheduleSettings(req.body || {});
+    await scheduleMarketingCron();
+
+    res.status(200).json({
+      status: 'ok',
+      message: 'Prepared schedule settings updated',
+      scheduleSettings
+    });
+  } catch (error) {
+    logger.error('Prepared schedule settings update failed', {
+      message: error.message
+    });
+
+    res.status(400).json({
       status: 'error',
       message: error.message
     });
@@ -204,9 +250,11 @@ module.exports = {
   deletePreparedScheduledDay,
   deletePreparedPostGroup,
   getPreparedQueue,
+  getPreparedScheduleSettings,
   getPreparedPostUi,
   importPreparedPosts,
   publishPreparedPostNow,
+  updatePreparedScheduleSettings,
   updatePreparedPostGroup,
   uploadPreparedPosts
 };

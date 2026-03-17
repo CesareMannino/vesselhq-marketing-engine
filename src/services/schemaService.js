@@ -145,12 +145,26 @@ async function ensureAuthSessionSchema() {
   );
 }
 
+async function ensureAppSettingsSchema() {
+  await pool.query(
+    `
+      CREATE TABLE IF NOT EXISTS marketing_app_settings (
+        setting_key VARCHAR(100) PRIMARY KEY,
+        setting_value LONGTEXT NOT NULL,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `
+  );
+}
+
 async function ensureDatabaseSchema() {
   await ensurePreparedPostSchema();
   await ensureAuthSessionSchema();
+  await ensureAppSettingsSchema();
 }
 
 module.exports = {
+  ensureAppSettingsSchema,
   ensureAuthSessionSchema,
   ensureDatabaseSchema,
   ensurePreparedPostSchema

@@ -6,8 +6,9 @@ const publisherService = require('../services/publisherService');
 const analyticsService = require('../services/analyticsService');
 const preparedPostService = require('../services/preparedPostService');
 const { ensurePreparedPostHasManagedImage } = require('../services/preparedPostImageService');
+const { getQueueScheduleSettings } = require('../services/schedulerSettingsService');
 const logger = require('../utils/logger');
-const { getDailyCronExpression, getCronAutoPlatforms, getCronTimezone } = require('../utils/schedulerHelper');
+const { getCronAutoPlatforms } = require('../utils/schedulerHelper');
 
 let marketingTask;
 
@@ -99,18 +100,28 @@ async function runMarketingJob(options = {}) {
   }
 }
 
-function scheduleMarketingCron() {
-  if (marketingTask) {
+async function scheduleMarketingCron() {
+  const scheduleSettings = await getQueueScheduleSettings();
+  const cronExpression = scheduleSettings.cronExpression;
+  const cronTimezone = scheduleSettings.timezone;
+  const scheduleSignature = `${cronExpression}|${cronTimezone}`;
+
+  if (marketingTask && marketingTask.__scheduleSignature === scheduleSignature) {
     return marketingTask;
   }
 
-  const cronExpression = getDailyCronExpression();
-  const cronTimezone = getCronTimezone();
+  if (marketingTask) {
+    marketingTask.stop();
+    if (typeof marketingTask.destroy === 'function') {
+      marketingTask.destroy();
+    }
+  }
 
   marketingTask = cron.schedule(cronExpression, runMarketingJob, {
     scheduled: true,
     timezone: cronTimezone
   });
+  marketingTask.__scheduleSignature = scheduleSignature;
 
   logger.info(`Marketing cron scheduled with expression "${cronExpression}" in timezone "${cronTimezone}"`);
 

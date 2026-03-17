@@ -4,6 +4,7 @@ const preparedPostImportService = require('../services/preparedPostImportService
 const publisherService = require('../services/publisherService');
 const analyticsService = require('../services/analyticsService');
 const { ensurePreparedPostHasManagedImage } = require('../services/preparedPostImageService');
+const { getCronAutoPlatforms, getCronTimezone, getDailyCronExpression } = require('../utils/schedulerHelper');
 const logger = require('../utils/logger');
 
 async function importPreparedPosts(req, res) {
@@ -35,7 +36,12 @@ async function getPreparedQueue(req, res) {
     res.status(200).json({
       status: 'ok',
       count: queue.length,
-      queue
+      queue,
+      overview: {
+        autoPlatforms: getCronAutoPlatforms(),
+        cronExpression: getDailyCronExpression(),
+        cronTimezone: getCronTimezone()
+      }
     });
   } catch (error) {
     logger.error('Prepared queue lookup failed', {
@@ -163,11 +169,39 @@ async function deletePreparedPostGroup(req, res) {
   }
 }
 
+async function deletePreparedScheduledDay(req, res) {
+  try {
+    const scheduledOrder = Number(req.body && req.body.scheduledOrder);
+
+    if (!Number.isInteger(scheduledOrder) || scheduledOrder < 1) {
+      throw new Error('delete day requires "scheduledOrder".');
+    }
+
+    const result = await preparedPostService.deletePendingPreparedPostsByScheduledOrder(scheduledOrder);
+
+    res.status(200).json({
+      status: 'ok',
+      message: 'Prepared scheduled day deleted',
+      result
+    });
+  } catch (error) {
+    logger.error('Prepared scheduled day delete failed', {
+      message: error.message
+    });
+
+    res.status(400).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+}
+
 function getPreparedPostUi(req, res) {
   res.sendFile(path.resolve(process.cwd(), 'src', 'public', 'prepared-posts.html'));
 }
 
 module.exports = {
+  deletePreparedScheduledDay,
   deletePreparedPostGroup,
   getPreparedQueue,
   getPreparedPostUi,

@@ -67,9 +67,33 @@ textarea{min-height:130px;resize:vertical}
 .char-count.warn{color:var(--warn)}
 .char-count.over{color:var(--bad);font-weight:700}
 .platforms{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}
-.check-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid rgba(215,202,180,0.94);border-radius:999px;background:rgba(255,253,249,0.96);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.check-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid rgba(215,202,180,0.94);border-radius:999px;background:rgba(255,253,249,0.96);font-size:13px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
 .check-pill:hover{border-color:var(--accent);background:#fff}
 .check-pill input{width:auto;margin:0;cursor:pointer}
+.setup-panel{display:grid;gap:12px;padding:16px;border:1px solid rgba(215,202,180,0.94);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,0.74),rgba(255,249,241,0.92))}
+.setup-panel-head{display:grid;gap:4px}
+.setup-panel-head strong{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--panel-strong)}
+.setup-panel-head span{font-size:13px;line-height:1.5;color:#44575e}
+.setup-panel-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:12px}
+.setup-card{border:1px solid rgba(215,202,180,0.92);border-radius:18px;padding:14px;background:rgba(255,255,255,0.86);display:grid;gap:10px}
+.setup-card.default{background:linear-gradient(180deg,rgba(237,242,255,0.9),rgba(248,250,255,0.96))}
+.setup-card.optional{background:linear-gradient(180deg,rgba(231,244,246,0.88),rgba(247,251,253,0.96))}
+.setup-card-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:700;color:var(--panel-strong)}
+.setup-card-copy{font-size:13px;line-height:1.5;color:#44575e}
+.setup-badge{display:inline-flex;align-items:center;justify-content:center;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.setup-badge.default{background:#edf2ff;color:#2346a0;border:1px solid #c7d4ff}
+.setup-badge.optional{background:#f5f0e5;color:#8f4f17;border:1px solid rgba(209,123,45,0.35)}
+.setup-toggle{display:flex;align-items:flex-start;gap:10px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer}
+.setup-toggle input{margin-top:3px}
+.setup-toggle-copy{display:grid;gap:5px}
+.setup-toggle-copy strong{font-size:14px;color:var(--panel-strong)}
+.setup-toggle-copy span{font-size:13px;line-height:1.5;color:#44575e}
+.setup-optional-grid{display:grid;gap:8px}
+.check-pill.optional-platform{width:100%;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:16px}
+.check-pill.optional-platform input{margin-top:4px}
+.check-pill-copy{display:grid;gap:2px;flex:1}
+.check-pill-copy strong{font-size:13px;color:var(--panel-strong)}
+.check-pill-copy span{font-size:12px;line-height:1.45;color:var(--muted)}
 .drop-zone{border:2px dashed rgba(215,202,180,0.96);border-radius:16px;padding:24px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s;position:relative;background:linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,249,241,0.92))}
 .drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:rgba(209,123,45,0.05);box-shadow:0 0 0 3px rgba(209,123,45,0.08)}
 .drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
@@ -88,7 +112,19 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 .status-bar.bad{color:var(--bad)}
 .autosave-dot{width:7px;height:7px;border-radius:50%;background:var(--good);opacity:0;transition:opacity .3s;margin-left:auto;flex-shrink:0}
 .autosave-dot.visible{opacity:1}
+.queue-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.queue-summary-card{border:1px solid rgba(14,59,67,0.08);border-radius:18px;padding:14px 15px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,249,241,0.88));display:grid;gap:5px}
+.queue-summary-card strong{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--panel-strong)}
+.queue-summary-value{font-size:24px;line-height:1;font-weight:700;color:#173843}
+.queue-summary-detail{font-size:12px;line-height:1.45;color:var(--muted)}
 .queue-list{display:grid;gap:14px;margin-top:14px}
+.queue-day{border:1px solid rgba(215,202,180,0.92);border-radius:24px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,248,238,0.76));display:grid;gap:14px}
+.queue-day-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.queue-day-title{display:grid;gap:5px}
+.queue-day-title h3{font-size:18px;line-height:1.15;color:var(--panel-strong)}
+.queue-day-meta{display:flex;flex-wrap:wrap;gap:8px}
+.queue-day-tag{background:rgba(14,59,67,0.06);border:1px solid rgba(14,59,67,0.08);border-radius:999px;padding:6px 10px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--panel-strong)}
+.queue-day-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .queue-item{border:1px solid rgba(215,202,180,0.9);border-radius:22px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,249,241,0.84));display:grid;grid-template-columns:1fr;gap:14px;align-items:start;transition:border-color .15s,box-shadow .15s,background .15s}
 .queue-item.pending{border-color:rgba(184,122,16,0.35)}
 .queue-item.partial{border-color:rgba(31,122,77,0.28);background:rgba(252,250,244,0.92)}
@@ -107,10 +143,14 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 .platform-chip.status-pending .platform-state{color:#7d5d18;background:rgba(184,122,16,0.12)}
 .platform-chip.status-published .platform-state{color:var(--good);background:rgba(31,122,77,0.12)}
 .platform-chip.status-failed .platform-state{color:var(--bad);background:rgba(168,61,44,0.12)}
-.queue-text{font-size:13px;line-height:1.58;color:#44575e;white-space:pre-wrap;max-width:34ch}
+.queue-copy-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.queue-copy-row strong{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--panel-strong)}
+.queue-text{width:100%;min-height:140px;border:1px solid rgba(215,202,180,0.88);border-radius:16px;padding:14px;background:rgba(255,252,247,0.9);font:inherit;font-size:13px;line-height:1.58;color:#44575e;resize:vertical}
+.queue-text:focus{outline:none;border-color:rgba(215,202,180,0.88);box-shadow:none}
 .queue-empty{color:var(--muted);font-style:italic;font-size:13px}
 .queue-actions-note{font-size:12px;color:var(--muted);margin-top:10px}
 .queue-side{display:grid;gap:8px}
+.queue-side-actions{display:flex;gap:8px;flex-wrap:wrap}
 .queue-drop-zone{position:relative;border:2px dashed rgba(215,202,180,0.9);border-radius:18px;overflow:hidden;min-height:152px;display:flex;align-items:flex-end;justify-content:flex-start;background:
   radial-gradient(circle at top right,rgba(95,157,173,0.12),transparent 32%),
   linear-gradient(180deg,rgba(14,59,67,0.06),rgba(14,59,67,0.02));cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s;text-transform:none;letter-spacing:0;color:inherit}
@@ -123,13 +163,14 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
 .queue-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .queue-drop-overlay{position:relative;z-index:1;width:100%;padding:14px;background:linear-gradient(180deg,rgba(23,32,38,0.06) 0%,rgba(23,32,38,0.82) 100%);color:#fff8ef;display:grid;gap:5px}
 .queue-drop-title{font-size:12px;font-weight:700;max-width:18ch}
-.queue-drop-meta{font-size:11px;color:rgba(255,248,239,0.84);line-height:1.45;max-width:26ch}
+.queue-drop-meta{font-size:11px;color:rgba(255,248,239,0.84);line-height:1.45;max-width:30ch}
 .queue-drop-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center;color:var(--muted);font-size:13px;line-height:1.45}
 .collapse-icon{font-size:12px;color:var(--muted);font-family:monospace}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--panel-strong);color:#f8f5ef;padding:10px 18px;border-radius:12px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 @media(max-width:1180px){.layout{grid-template-columns:1fr}.layout > aside.panel{position:static}.policy-bar{grid-template-columns:1fr}}
-@media(max-width:720px){main{width:min(100%,calc(100% - 20px));margin:16px auto 28px}.hero-copy{padding:16px}.panel{padding:16px;border-radius:20px}.queue-item{padding:14px}.queue-text{max-width:none}.queue-drop-zone{min-height:170px}}
+@media(max-width:860px){.setup-panel-grid{grid-template-columns:1fr}}
+@media(max-width:720px){main{width:min(100%,calc(100% - 20px));margin:16px auto 28px}.hero-copy{padding:16px}.panel{padding:16px;border-radius:20px}.queue-summary{grid-template-columns:1fr}.queue-item,.queue-day{padding:14px}.queue-drop-zone{min-height:170px}}
 @media(max-width:640px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -152,20 +193,20 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
     </div>
     <div class="hero-copy">
       <h1>Upload posts from the browser.</h1>
-      <p>VesselHQ queue workspace. Add prepared posts, attach an image for each one (drag, click, or <strong>paste from clipboard</strong>), choose platforms and save to the daily queue. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
+      <p>VesselHQ queue workspace. Add prepared posts, attach an image for each one (drag, click, or <strong>paste from clipboard</strong>), and save to the daily queue. Every new row starts with <strong>Facebook preselected</strong>; X / Twitter and LinkedIn can be added only from the <strong>optional setup panel</strong>. Same <strong>scheduled order</strong> = same cron run. Draft text is auto-saved locally.</p>
     </div>
     <div class="policy-bar">
       <div class="policy-card auto">
         <strong>Automatic Daily Publish</strong>
-        <span>Facebook only. The daily cron publishes only the next pending Facebook queue item.</span>
+        <span>Facebook only. Every new row starts with Facebook enabled, and the daily cron publishes only the next pending Facebook queue item.</span>
       </div>
       <div class="policy-card manual">
         <strong>Manual Platforms</strong>
-        <span>X / Twitter and LinkedIn stay manual. They publish only if you explicitly select or trigger them from the queue.</span>
+        <span>X / Twitter and LinkedIn are optional manual add-ons. They do nothing unless you enable them in the setup panel or trigger them from the queue.</span>
       </div>
       <div class="policy-card safety">
         <strong>Safety Guard</strong>
-        <span>Publish-now actions require confirmation, and saving a batch with X / LinkedIn shows an extra warning.</span>
+        <span>Publish-now actions require confirmation, and saving a batch with optional X / LinkedIn enabled shows an extra warning.</span>
       </div>
     </div>
   </section>
@@ -175,7 +216,7 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
       <div class="toolbar">
         <div>
           <h2>New Batch</h2>
-          <p class="hint">Order 1 = day one, 2 = day two... <strong>Default platform: Facebook.</strong></p>
+          <p class="hint">Order 1 = day one, 2 = day two... <strong>Facebook starts selected.</strong> Add X / LinkedIn only if this post also needs optional manual channels.</p>
           <div id="edit-banner" class="edit-banner" hidden>Editing queued post</div>
         </div>
         <div class="toolbar-right">
@@ -196,9 +237,16 @@ button:disabled{opacity:.55;cursor:wait;transform:none}
       <div class="toolbar">
         <div>
           <h2>Queue Overview</h2>
-          <p class="hint">Drop an image directly on each queue card. <strong>Auto daily:</strong> Facebook only. Sent posts stay visible here as reference.</p>
+          <p class="hint">Metrics, schedule coverage, full copy, image download, and delete-by-day live here. Sent posts stay visible as reference.</p>
         </div>
         <button id="refresh-queue" class="ghost" type="button">Refresh</button>
+      </div>
+      <div id="queue-summary" class="queue-summary">
+        <div class="queue-summary-card">
+          <strong>Queue snapshot</strong>
+          <div class="queue-summary-value">...</div>
+          <div class="queue-summary-detail">Loading queue metrics...</div>
+        </div>
       </div>
       <div id="queue-list" class="queue-list">
         <div class="queue-empty">Loading queue...</div>
@@ -220,6 +268,7 @@ const refreshBtn = document.getElementById('refresh-queue');
 const statusText = document.getElementById('status-text');
 const statusBar = document.getElementById('status');
 const autosaveDot = document.getElementById('autosave-dot');
+const queueSummaryNode = document.getElementById('queue-summary');
 const queueListNode = document.getElementById('queue-list');
 const toastEl = document.getElementById('toast');
 
@@ -281,6 +330,204 @@ function formatQueueDate(value) {
   }).format(date);
 }
 
+function formatQueueDayLabel(value, timeZone) {
+  if (!value) {
+    return 'Date not available';
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Date not available';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone: timeZone || undefined,
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short'
+  }).format(date);
+}
+
+function formatQueueTimeLabel(value, timeZone) {
+  if (!value) {
+    return '';
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone: timeZone || undefined,
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date);
+}
+
+function parseDailyCronExpression(expression) {
+  const parts = String(expression || '').trim().split(/\s+/);
+
+  if (parts.length !== 5) {
+    return null;
+  }
+
+  const [minute, hour, dayOfMonth, month, dayOfWeek] = parts;
+  const safeMinute = Number(minute);
+  const safeHour = Number(hour);
+
+  if (
+    !Number.isInteger(safeMinute) ||
+    !Number.isInteger(safeHour) ||
+    safeMinute < 0 ||
+    safeMinute > 59 ||
+    safeHour < 0 ||
+    safeHour > 23 ||
+    dayOfMonth !== '*' ||
+    month !== '*' ||
+    dayOfWeek !== '*'
+  ) {
+    return null;
+  }
+
+  return {
+    hour: safeHour,
+    minute: safeMinute
+  };
+}
+
+function getZonedDateParts(date, timeZone) {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timeZone || undefined,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23'
+  });
+
+  return formatter.formatToParts(date).reduce((accumulator, part) => {
+    if (part.type !== 'literal') {
+      accumulator[part.type] = Number(part.value);
+    }
+
+    return accumulator;
+  }, {});
+}
+
+function shiftZonedDay(parts, offsetDays) {
+  const shiftedDate = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offsetDays));
+
+  return {
+    year: shiftedDate.getUTCFullYear(),
+    month: shiftedDate.getUTCMonth() + 1,
+    day: shiftedDate.getUTCDate()
+  };
+}
+
+function buildDateFromZonedParts(parts, timeZone) {
+  let utcMillis = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const actualParts = getZonedDateParts(new Date(utcMillis), timeZone);
+    const desiredUtc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
+    const actualUtc = Date.UTC(
+      actualParts.year,
+      actualParts.month - 1,
+      actualParts.day,
+      actualParts.hour || 0,
+      actualParts.minute || 0,
+      actualParts.second || 0
+    );
+    const delta = desiredUtc - actualUtc;
+
+    if (!delta) {
+      break;
+    }
+
+    utcMillis += delta;
+  }
+
+  return new Date(utcMillis);
+}
+
+function getNextDailyRunDate(overview) {
+  const cronTime = parseDailyCronExpression(overview && overview.cronExpression);
+  const timeZone = overview && overview.cronTimezone;
+
+  if (!cronTime) {
+    return null;
+  }
+
+  const now = new Date();
+  const nowParts = getZonedDateParts(now, timeZone);
+  let candidate = buildDateFromZonedParts(
+    {
+      year: nowParts.year,
+      month: nowParts.month,
+      day: nowParts.day,
+      hour: cronTime.hour,
+      minute: cronTime.minute,
+      second: 0
+    },
+    timeZone
+  );
+
+  if (candidate <= now) {
+    const nextDayParts = shiftZonedDay(nowParts, 1);
+    candidate = buildDateFromZonedParts(
+      {
+        ...nextDayParts,
+        hour: cronTime.hour,
+        minute: cronTime.minute,
+        second: 0
+      },
+      timeZone
+    );
+  }
+
+  return candidate;
+}
+
+async function copyTextToClipboard(text) {
+  const safeText = String(text || '');
+
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    await navigator.clipboard.writeText(safeText);
+    return;
+  }
+
+  const tempField = document.createElement('textarea');
+  tempField.value = safeText;
+  tempField.setAttribute('readonly', 'readonly');
+  tempField.style.position = 'fixed';
+  tempField.style.opacity = '0';
+  document.body.appendChild(tempField);
+  tempField.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempField);
+}
+
+function slugifyFilePart(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 60) || 'queue-image';
+}
+
+function getImageDownloadName(group) {
+  const imageUrl = String(group && group.imageUrl ? group.imageUrl : '');
+  const urlPath = imageUrl ? imageUrl.split('?')[0] : '';
+  const extensionMatch = urlPath.match(/\.(png|jpe?g|webp|gif)$/i);
+  const extension = extensionMatch ? `.${extensionMatch[1].toLowerCase().replace('jpeg', 'jpg')}` : '.jpg';
+  return `${slugifyFilePart(group && group.importKey ? group.importKey : 'queue-image')}${extension}`;
+}
+
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -308,7 +555,7 @@ function confirmManualPlatformSelection(entries) {
   );
 
   return window.confirm(
-    `Safety check: ${labels.join(' + ')} are manual-only platforms in VesselHQ. They will not publish in the daily automatic run. Continue saving them to the queue?`
+    `Safety check: ${labels.join(' + ')} are optional manual platforms in VesselHQ. They stay outside the Facebook default automatic run. Continue saving them to the queue?`
   );
 }
 
@@ -458,11 +705,52 @@ function addRow(defaults = {}, collapsed = false) {
           </div>
         </div>
         <div class="field wide">
-          <label>Platforms</label>
-          <div class="platforms">
-            <label class="check-pill"><input data-platform="twitter" type="checkbox" ${platforms.includes('twitter') ? 'checked' : ''}> Twitter / X</label>
-            <label class="check-pill"><input data-platform="facebook" type="checkbox" ${platforms.includes('facebook') ? 'checked' : ''}> Facebook</label>
-            <label class="check-pill"><input data-platform="linkedin" type="checkbox" ${platforms.includes('linkedin') ? 'checked' : ''}> LinkedIn</label>
+          <label>Publishing Setup</label>
+          <div class="setup-panel">
+            <div class="setup-panel-head">
+              <strong>Only Facebook starts by default</strong>
+              <span>Every new row begins with Facebook selected. Add X / Twitter or LinkedIn only when this post also needs optional manual queue actions.</span>
+            </div>
+            <div class="setup-panel-grid">
+              <div class="setup-card default">
+                <div class="setup-card-title">
+                  Facebook
+                  <span class="setup-badge default">Default</span>
+                </div>
+                <label class="setup-toggle">
+                  <input data-platform="facebook" type="checkbox" ${platforms.includes('facebook') ? 'checked' : ''}>
+                  <span class="setup-toggle-copy">
+                    <strong>Preselected on every new row</strong>
+                    <span>This is the only platform used by the daily automatic publish run.</span>
+                  </span>
+                </label>
+              </div>
+              <div class="setup-card optional">
+                <div class="setup-card-title">
+                  Optional Manual Channels
+                  <span class="setup-badge optional">Opt-in</span>
+                </div>
+                <p class="setup-card-copy">These stay off unless you explicitly turn them on for this post.</p>
+                <div class="setup-optional-grid">
+                  <label class="check-pill optional-platform">
+                    <input data-platform="twitter" type="checkbox" ${platforms.includes('twitter') ? 'checked' : ''}>
+                    <span class="check-pill-copy">
+                      <strong>Twitter / X</strong>
+                      <span>Manual only. Added to the queue only if selected here.</span>
+                    </span>
+                    <span class="setup-badge optional">Optional</span>
+                  </label>
+                  <label class="check-pill optional-platform">
+                    <input data-platform="linkedin" type="checkbox" ${platforms.includes('linkedin') ? 'checked' : ''}>
+                    <span class="check-pill-copy">
+                      <strong>LinkedIn</strong>
+                      <span>Manual only. Added to the queue only if selected here.</span>
+                    </span>
+                    <span class="setup-badge optional">Optional</span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -498,7 +786,7 @@ function addRow(defaults = {}, collapsed = false) {
       campaignField.value = '';
       postTypeField.value = '';
       card.querySelectorAll('[data-platform]').forEach((checkbox) => {
-        checkbox.checked = false;
+        checkbox.checked = checkbox.dataset.platform === 'facebook';
       });
       fileInput.value = '';
       card._imageDataUrl = null;
@@ -967,6 +1255,108 @@ function groupQueueItems(items) {
     });
 }
 
+function buildQueueDays(groups, overview = {}) {
+  const days = new Map();
+  const autoPlatforms = new Set((overview.autoPlatforms || []).map((platform) => String(platform).toLowerCase()));
+  const nextDailyRun = getNextDailyRunDate(overview);
+  let autoDayOffset = 0;
+
+  groups.forEach((group) => {
+    const scheduledOrder = Number(group.scheduledOrder) || 0;
+
+    if (!days.has(scheduledOrder)) {
+      days.set(scheduledOrder, {
+        scheduledOrder,
+        groups: [],
+        pendingGroupCount: 0,
+        pendingPlatformCount: 0,
+        autoPendingPlatformCount: 0,
+        manualPendingPlatformCount: 0,
+        publishedPlatformCount: 0,
+        failedPlatformCount: 0,
+        autoPendingPlatforms: new Set()
+      });
+    }
+
+    const day = days.get(scheduledOrder);
+    day.groups.push(group);
+    day.publishedPlatformCount += group.publishedPlatforms.length;
+    day.failedPlatformCount += group.failedPlatforms.length;
+
+    if (group.pendingPlatforms.length) {
+      const autoPendingPlatforms = group.pendingPlatforms.filter((platform) => autoPlatforms.has(platform));
+      day.pendingGroupCount += 1;
+      day.pendingPlatformCount += group.pendingPlatforms.length;
+      day.autoPendingPlatformCount += autoPendingPlatforms.length;
+      day.manualPendingPlatformCount += group.pendingPlatforms.length - autoPendingPlatforms.length;
+      autoPendingPlatforms.forEach((platform) => day.autoPendingPlatforms.add(platform));
+    }
+  });
+
+  return [...days.values()]
+    .sort((left, right) => left.scheduledOrder - right.scheduledOrder)
+    .map((day) => {
+      const autoPendingPlatforms = [...day.autoPendingPlatforms].sort(
+        (left, right) => PLATFORM_ORDER.indexOf(left) - PLATFORM_ORDER.indexOf(right)
+      );
+      let autoPublishAt = null;
+
+      if (autoPendingPlatforms.length && nextDailyRun) {
+        autoPublishAt = new Date(nextDailyRun.getTime() + autoDayOffset * 24 * 60 * 60 * 1000);
+        autoDayOffset += 1;
+      }
+
+      return {
+        ...day,
+        autoPendingPlatforms,
+        autoPublishAt,
+        canDeleteDay: day.pendingGroupCount > 0
+      };
+    });
+}
+
+function renderQueueSummary(groups, days, overview = {}) {
+  const pendingGroups = groups.filter((group) => group.pendingPlatforms.length > 0).length;
+  const pendingPlatformPosts = groups.reduce((sum, group) => sum + group.pendingPlatforms.length, 0);
+  const autoPlatforms = new Set((overview.autoPlatforms || []).map((platform) => String(platform).toLowerCase()));
+  const autoPendingPlatformPosts = groups.reduce(
+    (sum, group) => sum + group.pendingPlatforms.filter((platform) => autoPlatforms.has(platform)).length,
+    0
+  );
+  const manualPendingPlatformPosts = pendingPlatformPosts - autoPendingPlatformPosts;
+  const pendingDays = days.filter((day) => day.pendingGroupCount > 0).length;
+  const autoDays = days.filter((day) => day.autoPendingPlatforms.length > 0);
+  const lastCoveredDay = autoDays.length ? autoDays[autoDays.length - 1] : null;
+  const nextRun = getNextDailyRunDate(overview);
+  const cronTime = parseDailyCronExpression(overview.cronExpression);
+  const autoPlatformsLabel = (overview.autoPlatforms || [])
+    .map((platform) => (PLATFORM_META[platform] ? PLATFORM_META[platform].label : platform))
+    .join(', ');
+
+  queueSummaryNode.innerHTML = [
+    `<div class="queue-summary-card">
+      <strong>Pending Queue</strong>
+      <div class="queue-summary-value">${pendingGroups}</div>
+      <div class="queue-summary-detail">${pendingPlatformPosts} platform post${pendingPlatformPosts === 1 ? '' : 's'} pending across ${pendingDays} scheduled day${pendingDays === 1 ? '' : 's'}. ${autoPendingPlatformPosts} default auto${autoPlatformsLabel ? ` (${escapeHtml(autoPlatformsLabel)})` : ''}${manualPendingPlatformPosts ? `, ${manualPendingPlatformPosts} optional manual add-on${manualPendingPlatformPosts === 1 ? '' : 's'}.` : '.'}</div>
+    </div>`,
+    `<div class="queue-summary-card">
+      <strong>Auto Publish</strong>
+      <div class="queue-summary-value">${cronTime ? `${String(cronTime.hour).padStart(2, '0')}:${String(cronTime.minute).padStart(2, '0')}` : escapeHtml(overview.cronExpression || 'Custom')}</div>
+      <div class="queue-summary-detail">${nextRun ? `Next run ${formatQueueDayLabel(nextRun, overview.cronTimezone)} at ${formatQueueTimeLabel(nextRun, overview.cronTimezone)}` : 'Next run not derived from this cron expression.'} ${overview.cronTimezone ? `(${escapeHtml(overview.cronTimezone)})` : ''}. ${autoPlatformsLabel ? `Auto: ${escapeHtml(autoPlatformsLabel)}.` : ''}</div>
+    </div>`,
+    `<div class="queue-summary-card">
+      <strong>Coverage</strong>
+      <div class="queue-summary-value">${lastCoveredDay && lastCoveredDay.autoPublishAt ? escapeHtml(formatQueueDayLabel(lastCoveredDay.autoPublishAt, overview.cronTimezone)) : 'Manual only'}</div>
+      <div class="queue-summary-detail">${autoDays.length ? `${autoDays.length} auto-publish day${autoDays.length === 1 ? '' : 's'} queued. Last covered run at ${formatQueueTimeLabel(lastCoveredDay.autoPublishAt, overview.cronTimezone)}.` : 'No pending auto-publish day found in queue right now.'}</div>
+    </div>`,
+    `<div class="queue-summary-card">
+      <strong>Day Control</strong>
+      <div class="queue-summary-value">${days.filter((day) => day.canDeleteDay).length}</div>
+      <div class="queue-summary-detail">Use <strong>Delete day</strong> on a section header to remove all pending posts for that scheduled day.</div>
+    </div>`
+  ].join('');
+}
+
 function renderPlatformChip(platform, status = 'pending') {
   const meta = PLATFORM_META[platform] || {
     label: platform,
@@ -985,6 +1375,38 @@ function renderPlatformChip(platform, status = 'pending') {
     <span>${escapeHtml(meta.label)}</span>
     <span class="platform-state">${escapeHtml(stateLabel)}</span>
   </span>`;
+}
+
+function renderQueueDay(day, overview = {}) {
+  const timeZone = overview.cronTimezone;
+  const scheduleLabel = day.autoPublishAt
+    ? `Auto publish ${formatQueueDayLabel(day.autoPublishAt, timeZone)} at ${formatQueueTimeLabel(day.autoPublishAt, timeZone)}`
+    : day.autoPendingPlatforms.length
+      ? 'Auto publish queued'
+      : 'Manual-only day';
+  const autoPlatformsLabel = day.autoPendingPlatforms.length
+    ? day.autoPendingPlatforms.map((platform) => PLATFORM_META[platform]?.label || platform).join(', ')
+    : 'No automatic platforms pending';
+
+  return `<section class="queue-day">
+    <div class="queue-day-header">
+      <div class="queue-day-title">
+        <h3>Day ${day.scheduledOrder}</h3>
+        <div class="queue-day-meta">
+          <span class="queue-day-tag">${escapeHtml(scheduleLabel)}</span>
+          <span class="queue-day-tag">${day.pendingGroupCount} queue item${day.pendingGroupCount === 1 ? '' : 's'} pending</span>
+          <span class="queue-day-tag">${day.autoPendingPlatformCount ? `${day.autoPendingPlatformCount} default auto pending` : 'No default auto pending'}</span>
+          ${day.manualPendingPlatformCount ? `<span class="queue-day-tag">${day.manualPendingPlatformCount} optional manual</span>` : ''}
+          ${day.failedPlatformCount ? `<span class="queue-day-tag">${day.failedPlatformCount} failed</span>` : ''}
+          <span class="queue-day-tag">Auto default: ${escapeHtml(autoPlatformsLabel)}</span>
+        </div>
+      </div>
+      <div class="queue-day-actions">
+        ${day.canDeleteDay ? `<button class="danger-sm" type="button" data-action="delete-day" data-scheduled-order="${day.scheduledOrder}">Delete day</button>` : ''}
+      </div>
+    </div>
+    <div class="queue-list">${day.groups.map((group) => renderQueueGroup(group)).join('')}</div>
+  </section>`;
 }
 
 function renderQueueGroup(group) {
@@ -1012,6 +1434,11 @@ function renderQueueGroup(group) {
   ]
     .filter(Boolean)
     .join('');
+  const utilityButtons = [
+    `<button class="ghost-sm" type="button" data-action="copy-queue-text" data-import-key="${escapeHtml(group.importKey)}">Copy text</button>`
+  ]
+    .filter(Boolean)
+    .join('');
   const queueDropTitle = group.canUploadImage
     ? group.imageUrl
       ? 'Drop image here to replace'
@@ -1033,7 +1460,11 @@ function renderQueueGroup(group) {
         ${group.campaignTag ? '<span class="tag">' + escapeHtml(group.campaignTag) + '</span>' : ''}
       </div>
       <div class="queue-platforms">${group.platforms.map((platform) => renderPlatformChip(platform, group.platformStatuses[platform])).join('')}</div>
-      <div class="queue-text">${escapeHtml((group.text || '').slice(0, 200) + (group.text?.length > 200 ? '...' : ''))}</div>
+      <div class="queue-copy-row">
+        <strong>Full copy</strong>
+        <div class="queue-side-actions">${utilityButtons}</div>
+      </div>
+      <textarea class="queue-text" readonly>${escapeHtml(group.text || '')}</textarea>
       ${
         actionButtons
           ? `<div class="queue-platforms">${actionButtons}</div>`
@@ -1049,6 +1480,7 @@ function renderQueueGroup(group) {
           <span class="queue-drop-meta">${escapeHtml(queueDropMeta)}</span>
         </span>
       </label>
+      ${group.imageUrl ? `<div class="queue-side-actions"><button class="ghost-sm" type="button" data-action="download-queue-image" data-import-key="${escapeHtml(group.importKey)}">Download image</button></div>` : ''}
     </div>
   </article>`;
 }
@@ -1107,7 +1539,13 @@ async function uploadQueueGroupImage(group, file, dropZone) {
 }
 
 async function loadQueue() {
+  queueSummaryNode.innerHTML = `<div class="queue-summary-card">
+    <strong>Queue snapshot</strong>
+    <div class="queue-summary-value">...</div>
+    <div class="queue-summary-detail">Loading queue metrics...</div>
+  </div>`;
   queueListNode.innerHTML = '<div class="queue-empty">Loading queue...</div>';
+
   try {
     const response = await fetch('/prepared-posts/queue?limit=' + QUEUE_LIMIT);
     const payload = await response.json();
@@ -1116,18 +1554,61 @@ async function loadQueue() {
       throw new Error(payload.message || 'Could not load queue.');
     }
 
+    const overview = payload.overview || {};
     const groupedQueue = groupQueueItems(payload.queue);
+    const queueDays = buildQueueDays(groupedQueue, overview);
 
-    queueListNode.innerHTML = groupedQueue.length
-      ? groupedQueue.map(renderQueueGroup).join('')
+    renderQueueSummary(groupedQueue, queueDays, overview);
+
+    queueListNode.innerHTML = queueDays.length
+      ? queueDays.map((day) => renderQueueDay(day, overview)).join('')
       : '<div class="queue-empty">No prepared posts found.</div>';
 
     queueListNode.querySelectorAll('[data-action="edit-queue-item"]').forEach((button) => {
       button.addEventListener('click', () => {
         const group = groupedQueue.find((item) => item.importKey === button.dataset.importKey);
+
         if (group) {
           startEditingGroup(group);
         }
+      });
+    });
+
+    queueListNode.querySelectorAll('[data-action="copy-queue-text"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const group = groupedQueue.find((item) => item.importKey === button.dataset.importKey);
+
+        if (!group) {
+          return;
+        }
+
+        try {
+          await copyTextToClipboard(group.text || '');
+          setStatus('Full post text copied to clipboard.', 'good');
+          showToast('Post text copied');
+        } catch (error) {
+          setStatus('Could not copy post text.', 'bad');
+        }
+      });
+    });
+
+    queueListNode.querySelectorAll('[data-action="download-queue-image"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const group = groupedQueue.find((item) => item.importKey === button.dataset.importKey);
+
+        if (!group || !group.imageUrl) {
+          return;
+        }
+
+        const anchor = document.createElement('a');
+        anchor.href = group.imageUrl;
+        anchor.download = getImageDownloadName(group);
+        anchor.target = '_blank';
+        anchor.rel = 'noreferrer';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        showToast('Image download started');
       });
     });
 
@@ -1145,7 +1626,7 @@ async function loadQueue() {
 
         try {
           setStatus('Deleting queued post...', '');
-          const response = await fetch('/prepared-posts/group', {
+          const deleteResponse = await fetch('/prepared-posts/group', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json'
@@ -1154,11 +1635,10 @@ async function loadQueue() {
               importKey
             })
           });
+          const deletePayload = await deleteResponse.json();
 
-          const payload = await response.json();
-
-          if (!response.ok) {
-            throw new Error(payload.message || 'Could not delete queued post.');
+          if (!deleteResponse.ok) {
+            throw new Error(deletePayload.message || 'Could not delete queued post.');
           }
 
           if (currentEditImportKey === importKey) {
@@ -1167,6 +1647,57 @@ async function loadQueue() {
 
           setStatus('Queued post deleted successfully.', 'good');
           showToast('Queue item deleted');
+          await loadQueue();
+        } catch (error) {
+          setStatus(error.message, 'bad');
+        } finally {
+          button.disabled = false;
+        }
+      });
+    });
+
+    queueListNode.querySelectorAll('[data-action="delete-day"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const scheduledOrder = Number(button.dataset.scheduledOrder);
+        const day = queueDays.find((entry) => entry.scheduledOrder === scheduledOrder);
+
+        if (!day) {
+          return;
+        }
+
+        const dayLabel = day.autoPublishAt
+          ? `${formatQueueDayLabel(day.autoPublishAt, overview.cronTimezone)}`
+          : `scheduled order ${scheduledOrder}`;
+
+        if (!window.confirm(`Delete all pending queue posts for ${dayLabel}?`)) {
+          return;
+        }
+
+        button.disabled = true;
+
+        try {
+          setStatus('Deleting scheduled day...', '');
+          const deleteResponse = await fetch('/prepared-posts/day', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              scheduledOrder
+            })
+          });
+          const deletePayload = await deleteResponse.json();
+
+          if (!deleteResponse.ok) {
+            throw new Error(deletePayload.message || 'Could not delete scheduled day.');
+          }
+
+          if (currentEditImportKey && day.groups.some((group) => group.importKey === currentEditImportKey)) {
+            resetComposerToCreateMode();
+          }
+
+          setStatus('Scheduled day deleted successfully.', 'good');
+          showToast('Scheduled day deleted');
           await loadQueue();
         } catch (error) {
           setStatus(error.message, 'bad');
@@ -1196,7 +1727,7 @@ async function loadQueue() {
                 ? 'LinkedIn'
                 : 'X';
           setStatus(`Publishing ${label} post...`, '');
-          const response = await fetch('/prepared-posts/publish-now', {
+          const publishResponse = await fetch('/prepared-posts/publish-now', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -1206,11 +1737,10 @@ async function loadQueue() {
               platform
             })
           });
+          const publishPayload = await publishResponse.json();
 
-          const payload = await response.json();
-
-          if (!response.ok) {
-            throw new Error(payload.message || `Could not publish ${label} post.`);
+          if (!publishResponse.ok) {
+            throw new Error(publishPayload.message || `Could not publish ${label} post.`);
           }
 
           setStatus(`${label} post published successfully.`, 'good');
@@ -1268,6 +1798,11 @@ async function loadQueue() {
       });
     });
   } catch (error) {
+    queueSummaryNode.innerHTML = `<div class="queue-summary-card">
+      <strong>Queue snapshot</strong>
+      <div class="queue-summary-value">Error</div>
+      <div class="queue-summary-detail">${escapeHtml(error.message)}</div>
+    </div>`;
     queueListNode.innerHTML = '<div class="queue-empty">' + escapeHtml(error.message) + '</div>';
   }
 }

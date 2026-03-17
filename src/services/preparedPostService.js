@@ -426,7 +426,57 @@ async function deletePendingPreparedPostGroup(importKeyBase) {
   }
 }
 
+async function deletePendingPreparedPostsByScheduledOrder(scheduledOrder) {
+  const safeScheduledOrder = Number(scheduledOrder);
+
+  if (!Number.isInteger(safeScheduledOrder) || safeScheduledOrder < 1) {
+    throw new Error('Prepared post delete requires a valid "scheduledOrder".');
+  }
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [existingRows] = await connection.query(
+      `
+        SELECT id
+        FROM marketing_prepared_posts
+        WHERE status = 'pending'
+          AND scheduled_order = ?
+      `,
+      [safeScheduledOrder]
+    );
+
+    if (existingRows.length === 0) {
+      throw new Error('No pending prepared posts found for this scheduled day.');
+    }
+
+    await connection.query(
+      `
+        DELETE FROM marketing_prepared_posts
+        WHERE status = 'pending'
+          AND scheduled_order = ?
+      `,
+      [safeScheduledOrder]
+    );
+
+    await connection.commit();
+
+    return {
+      deletedCount: existingRows.length,
+      scheduledOrder: safeScheduledOrder
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
 module.exports = {
+  deletePendingPreparedPostsByScheduledOrder,
   deletePendingPreparedPostGroup,
   getPendingPreparedPostByPlatform,
   getPendingPreparedPostGroup,
